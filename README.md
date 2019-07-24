@@ -1,8 +1,8 @@
 # pySELFI #
 
 [![arXiv](https://img.shields.io/badge/astro--ph.CO-arxiv%3A1902.10149-B31B1B.svg?style=flat)](https://arxiv.org/abs/1902.10149)
-[![GitHub version](https://img.shields.io/github/tag/florent-leclercq/pyselfi.svg?maxAge=3600&label=version)](https://github.com/florent-leclercq/pyselfi)
-[![GitHub commits](https://img.shields.io/github/commits-since/florent-leclercq/pyselfi/v1.0.svg)](https://github.com/florent-leclercq/pyselfi/commits)
+[![GitHub version](https://img.shields.io/github/tag/florent-leclercq/pyselfi.svg?label=version)](https://github.com/florent-leclercq/pyselfi)
+[![GitHub commits](https://img.shields.io/github/commits-since/florent-leclercq/pyselfi/v1.1.svg)](https://github.com/florent-leclercq/pyselfi/commits)
 [![DOI](https://zenodo.org/badge/197575311.svg)](https://zenodo.org/badge/latestdoi/197575311)
 [![GPLv3 license](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://github.com/florent-leclercq/pyselfi/blob/master/LICENSE)
 [![PyPI version](https://badge.fury.io/py/pyselfi.svg)](https://badge.fury.io/py/pyselfi)
@@ -22,7 +22,7 @@ The code's homepage is [http://pyselfi.florent-leclercq.eu](http://pyselfi.flore
 
 ## Reference ##
 
-To acknowledge the use of pySELFI in research papers, please cite its Zenodo doi (see the badge above), as well as the paper <a href="https://arxiv.org/abs/1902.10149" target="blank">Leclercq <i>et al.</i> 2019</a>: 
+To acknowledge the use of pySELFI in research papers, please cite its [doi:10.5281/zenodo.3341588](https://doi.org/10.5281/zenodo.3341588) (or for the latest version, see the badge above), as well as the paper <a href="https://arxiv.org/abs/1902.10149" target="blank">Leclercq <i>et al.</i> (2019)</a>: 
 
 *Primordial power spectrum and cosmology from black-box galaxy surveys*<br/>
 F. Leclercq, W. Enzi, J. Jasche, A. Heavens<br/>
@@ -42,7 +42,8 @@ F. Leclercq, W. Enzi, J. Jasche, A. Heavens<br/>
         primaryClass = {astro-ph.CO},
         adsurl = {https://ui.adsabs.harvard.edu/abs/2019arXiv190210149L},
         adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+        }
 
 ## License ##
 
-This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. By downloading and using pyselfi, you agree to the [LICENSE](LICENSE), distributed with the source code in a text file of the same name.
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. By downloading and using pySELFI, you agree to the [LICENSE](LICENSE), distributed with the source code in a text file of the same name.

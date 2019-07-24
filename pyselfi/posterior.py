@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #-------------------------------------------------------------------------------------
-# pySELFI v1.0 -- pyselfi/posterior.py
+# pySELFI v1.1 -- pyselfi/posterior.py
 # Copyright (C) 2019-2019 Florent Leclercq.
 # 
 # This file is part of the pySELFI distribution
@@ -18,34 +18,45 @@
 # The text of the license is located in the root directory of the source package.
 #-------------------------------------------------------------------------------------
 
-"""Routines related to the SELFI posterior
+"""Routines related to the SELFI posterior.
+
+.. _Leclercqetal2019: https://arxiv.org/abs/1902.10149
+
+.. |Leclercqetal2019| replace:: Leclercq *et al*. (2019)
 """
 
 __author__  = "Florent Leclercq"
-__version__ = "1.0"
+__version__ = "1.1"
 __date__    = "2018-2019"
 __license__ = "GPLv3"
 
 class posterior(object):
-    """This class represents the SELFI posterior
-    See equations (25) and (26) in Leclercq et al. 2019 for expressions
+    """This class represents the SELFI posterior. See equations (25) and (26) in |Leclercqetal2019|_ for expressions.
+
+    Attributes
+    ----------
+    theta_0 : array, double, dimension=S
+        prior mean and expansion point
+    prior_covariance : array, double, dimension=(S,S)
+        prior covariance matrix
+    inv_prior_covariance : array, double, dimension=(S,S)
+        inverse prior covariance matrix
+    f_0 : array, double, dimension=P
+        mean blackbox at the expansion point
+    C_0 : array, double, dimension=(P,P)
+        covariance matrix of summaries at the expansion point
+    inv_C_0 : array, double, dimension=(P,P)
+        inverse covariance matrix of summaries at the expansion point
+    grad_f : array, double, dimension=(S,P)
+        gradient of the blackbox at the expansion point
+    phi_obs : array, double, dimension=P
+        observed summaries vector
+
     """
     
     # Initialization
     def __init__(self,theta_0,prior_covariance,inv_prior_covariance,f_0,C_0,inv_C_0,grad_f,phi_obs):
-        """Initializes a posterior object
-
-        Parameters
-        ----------
-        theta_0 (array, double, dimension=S) : prior mean and expansion point
-        prior_covariance (array, double, dimension=(S,S)) : prior covariance matrix
-        inv_prior_covariance (array, double, dimension=(S,S)) : inverse prior covariance matrix
-        f_0 (array, double, dimension=(P)) : mean blackbox at the expansion point
-        C_0 (array, double, dimension=(P,P)) : covariance matrix of summaries at the expansion point
-        inv_C_0 (array, double, dimension=(P,P)) : inverse covariance matrix of summaries at the expansion point
-        grad_f (array, double, dimension=(P,S)) : gradient of the blackbox at the expansion point
-        phi_obs (array, double, dimension=P) : observed summaries vector
-
+        """Initializes a posterior object.
         """
         self.theta_0=theta_0
         self.prior_covariance=prior_covariance
@@ -61,8 +72,8 @@ class posterior(object):
         self.EPS_Gamma=1e-7
         self.EPS_residual=1e-3
         
-    def compute_inv_N(self):
-        """Computes the inverse of the 'noise' matrix
+    def _compute_inv_N(self):
+        """Computes the inverse of the 'noise' matrix.
         """
         import numpy as np
         inv_C_0=self.inv_C_0
@@ -70,46 +81,45 @@ class posterior(object):
         
         self.inv_N = inv_N = grad_f.T.dot(inv_C_0).dot(grad_f)
     
-    def compute_inverse_posterior_covariance(self):
-        """Computes the inverse posterior covariance
+    def _compute_inverse_posterior_covariance(self):
+        """Computes the inverse posterior covariance.
         """
         inv_prior_covariance=self.inv_prior_covariance
-        self.compute_inv_N()
+        self._compute_inv_N()
         inv_N=self.inv_N
         
         self.inv_covariance = inv_N + inv_prior_covariance
     
-    def get_posterior_covariance(self):
-        """Gets the posterior covariance
-        (equation (26) in Leclercq et al. 2019)
+    def _get_posterior_covariance(self):
+        """Gets the posterior covariance. See equation (26) in |Leclercqetal2019|_.
 
         Returns
         -------
-        Gamma (array, double, dimension=(S,S)) : posterior covariance matrix
+        Gamma : array, double, dimension=(S,S)
+            posterior covariance matrix
 
         """
         import numpy as np
         from pyselfi.utils import regular_inv
-        self.compute_inverse_posterior_covariance()
+        self._compute_inverse_posterior_covariance()
         
         inv_covariance=self.inv_covariance
         Gamma = regular_inv(inv_covariance, self.EPS_inv_covariance, self.EPS_residual)
         
         return Gamma
     
-    def get_posterior_covariance_alt(self):
-        """Gets the posterior covariance
-        (equation (26) in Leclercq et al. 2019)
-        Alternative algebra: can be used if numerically more stable
+    def _get_posterior_covariance_alt(self):
+        """Gets the posterior covariance. See equation (26) in |Leclercqetal2019|_. Alternative algebra: can be used if numerically more stable.
 
         Returns
         -------
-        Gamma (array, double, dimension=(S,S)) : posterior covariance matrix
+        Gamma : array, double, dimension=(S,S)
+            posterior covariance matrix
 
         """
         from pyselfi.utils import regular_inv
         S=self.prior_covariance
-        self.compute_inv_N()
+        self._compute_inv_N()
         inv_N=self.inv_N
         
         N = regular_inv(inv_N, self.EPS_inv_N, self.EPS_residual)
@@ -117,13 +127,13 @@ class posterior(object):
         self.inv_covariance = regular_inv(Gamma, self.EPS_Gamma, self.EPS_residual)
         return Gamma
     
-    def get_posterior_mean(self):
-        """Gets the posterior mean
-        (equation (25) in Leclercq et al. 2019)
+    def _get_posterior_mean(self):
+        """Gets the posterior mean. See equation (25) in |Leclercqetal2019|_.
 
         Returns
         -------
-        gamma (array, double, dimension=S) : posterior mean
+        gamma : array, double, dimension=S
+            posterior mean
 
         """
         import scipy.linalg as sla
@@ -139,14 +149,13 @@ class posterior(object):
         gamma = theta_0 + theta_rec
         return gamma
     
-    def get_posterior_mean_alt(self):
-        """Gets the posterior mean
-        (equation (25) in Leclercq et al. 2019)
-        Alternative algebra: can be used if numerically more stable
+    def _get_posterior_mean_alt(self):
+        """Gets the posterior mean. See equation (25) in |Leclercqetal2019|_. Alternative algebra: can be used if numerically more stable.
 
         Returns
         -------
-        gamma (array, double, dimension=S) : posterior mean
+        gamma : array, double, dimension=S
+            posterior mean
 
         """
         theta_0=self.theta_0
@@ -162,25 +171,29 @@ class posterior(object):
         return gamma
     
     def compute(self):
-        """Computes the posterior (mean and covariance matrix)
+        """Computes the posterior (mean and covariance matrix).
         """
-        self.covariance = self.get_posterior_covariance()
-        self.mean = self.get_posterior_mean()
+        self.covariance = self._get_posterior_covariance()
+        self.mean = self._get_posterior_mean()
     
     def logpdf(self,theta,theta_mean,theta_covariance,theta_icov):
-        """Returns the log posterior probability at a given point in parameter space
-        (equation (24) in Leclercq et al. 2019)
+        """Returns the log posterior probability at a given point in parameter space. See equation (24) in |Leclercqetal2019|_.
 
         Parameters
         ----------
-        theta (array, double, dimension=S) : evaluation point in parameter space
-        theta_mean (array, double, dimension=S) : posterior mean
-        theta_covariance (array, double, dimension=(S,S)) : posterior covariance
-        theta_icov (array, double, dimension=(S,S)) : inverse posterior covariance
+        theta : array, double, dimension=S
+            evaluation point in parameter space
+        theta_mean : array, double, dimension=S
+            posterior mean
+        theta_covariance : array, double, dimension=(S,S)
+            posterior covariance
+        theta_icov : array, double, dimension=(S,S)
+            inverse posterior covariance
 
         Returns
         -------
-        logpdf (double) : log posterior probability
+        logpdf : double
+            log posterior probability
 
         """
         import numpy as np
@@ -188,11 +201,12 @@ class posterior(object):
         return -diff.dot(theta_icov).dot(diff)/2. - np.linalg.slogdet(2*np.pi*theta_covariance)[1]/2.
     
     def save(self,fname):
-        """Saves the posterior to an output file
+        """Saves the posterior to an output file.
 
         Parameters
         ----------
-        fname (string) : output filename
+        fname : :obj:`str`
+            output filename
 
         """
         import h5py as h5
@@ -217,11 +231,17 @@ class posterior(object):
 
     @classmethod
     def load(cls,fname):
-        """Loads the posterior from an input file
+        """Loads the posterior from an input file.
 
         Parameters
         ----------
-        fname (string) : input filename
+        fname : :obj:`str`
+            input filename
+
+        Returns
+        -------
+        posterior : :obj:`posterior`
+            loaded posterior object
 
         """
         import h5py as h5

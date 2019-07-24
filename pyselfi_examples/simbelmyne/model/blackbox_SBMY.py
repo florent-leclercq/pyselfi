@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #-------------------------------------------------------------------------------------
-# pySELFI v1.0 -- examples/simbelmyne/model/blackbox_SBMY.py
+# pySELFI v1.1 -- pyselfi_examples/simbelmyne/model/blackbox_SBMY.py
 # Copyright (C) 2019-2019 Florent Leclercq.
 # 
 # This file is part of the pySELFI distribution
@@ -18,41 +18,85 @@
 # The text of the license is located in the root directory of the source package.
 #-------------------------------------------------------------------------------------
 
-"""A blackbox to generate mock galaxy observations and
-evaluate their power spectrum, using the Simbelynë code
+"""A blackbox to generate synthetic galaxy observations and evaluate their power spectrum, using the Simbelynë code.
 """
 
 __author__  = "Florent Leclercq"
-__version__ = "1.0"
+__version__ = "1.1"
 __date__    = "2018-2019"
 __license__ = "GPLv3"
 
 class blackbox(object):
-    """This class represents a SELFI blackbox
-    """
+    """This class represents a SELFI blackbox.
+
+    Attributes
+    ----------
+    P : int
+        number of output summary statistics. This is the only mandatory argument
+    theta2P : func
+        function to go from input parameters theta to cosmological power spectrum
+    k_s : array, double, dimension=S
+        vector of support wavenumbers
+    G_sim : :obj:`FourierGrid`
+        Fourier grid of the simulation
+    G_ss : :obj:`FourierGrid`
+        Fourier grid on which to compute the output summaries of the blackbox
+    P_ss : :obj:`PowerSpectrum`
+        fiducial summaries at the expansion point, to normalize the output of the blackbox
+    corner0 : double
+        x-position of the corner of the box with respect to the observer (which is at (0,0,0))
+    corner1 : double
+        y-position of the corner of the box with respect to the observer (which is at (0,0,0))
+    corner2 : double
+        z-position of the corner of the box with respect to the observer (which is at (0,0,0))
+    Np0 : int
+        particle grid size x
+    Npm0 : int
+        simulation particle-mesh grid size x
+    fdir : :obj:`str`
+        directory for inference outputs
+    fsimdir : :obj:`str`
+        directory for simulation outputs
+    fname_inputsurveygeometry : :obj:`str`
+        input survey geometry filename
+    b_cut : double
+        cut in galactic latitude to generate the mock survey geometry
+    bright_apparent_magnitude_cut : double
+        bright cut in absolute magnitude for Schechter completeness
+    faint_apparent_magnitude_cut : double
+        faint cut in apparent magnitude for Schechter completeness
+    bright_absolute_magnitude_cut : double
+        bright cut in absolute magnitude for Schechter completeness
+    faint_absolute_magnitude_cut : double
+        faint cut in absolute magnitude for Schechter completeness
+    Mstar : double
+        Schechter completeness parameter
+    alpha : double
+        Schechter completeness parameter
+    save_frequency : int
+        saves the output on the blackbox on disk each save_frequency evaluations
+
+"""
     
     # Initialization
     def __init__(self, P, **kwargs):
-        """Initializes the blackbox object
-
-        Parameters
-        ----------
-        P (int) : number of output summary statistics. This is the only mandatory argument
-        **kwargs (optional, dictionary) : other arguments
-
+        """Initializes the blackbox object.
         """
         self.P=P
         for key, value in kwargs.items():
             setattr(self,key,value)
     
-    def save_cosmo(self, cosmo, fname_cosmo, force_cosmo=False):
-        """Saves cosmological parameters in json format
+    def _save_cosmo(self, cosmo, fname_cosmo, force_cosmo=False):
+        """Saves cosmological parameters in json format.
 
         Parameters
         ----------
-        cosmo (dictionary) : cosmological parameters (and some infrastructure parameters) to be saved
-        fname_cosmo (string) : name of the output json file
-        force_cosmo (optional, bool, default=False) : overwrite if the file already exists?
+        cosmo : dictionary
+            cosmological parameters (and some infrastructure parameters) to be saved
+        fname_cosmo : :obj:`str`
+            name of the output json file
+        force_cosmo : bool, optional, default=False
+            overwrite if the file already exists?
 
         """
         import json
@@ -61,14 +105,17 @@ class blackbox(object):
             with open(fname_cosmo, 'w') as fp:
                 json.dump(cosmo, fp)
     
-    def get_powerspectrum_from_cosmo(self, cosmo, fname_powerspectrum, force_powerspectrum=False):
-        """Loads or computes the power spectrum from input cosmological parameters
+    def _get_powerspectrum_from_cosmo(self, cosmo, fname_powerspectrum, force_powerspectrum=False):
+        """Loads or computes the power spectrum from input cosmological parameters.
 
         Parameters
         ----------
-        cosmo (dictionary) : cosmological parameters (and some infrastructure parameters)
-        fname_powerspectrum (string) : name of input/output power spectrum file
-        force_powerspectrum (optional, bool, default=False) : force recomputation?
+        cosmo : dictionary
+            cosmological parameters (and some infrastructure parameters)
+        fname_powerspectrum : :obj:`str`
+            name of input/output power spectrum file
+        force : bool, optional, default=False
+            force recomputation?
 
         """
         from os.path import exists
@@ -81,15 +128,17 @@ class blackbox(object):
             P=PowerSpectrum(L0,L1,L2,N0,N1,N2,cosmo)
             P.write(fname_powerspectrum)
     
-    def get_powerspectrum_from_theta(self, theta, fname_powerspectrum, force_powerspectrum=False):
-        """Returns a power spectrum from its value at support wavenumbers,
-        by performing a Spline interpolation
+    def _get_powerspectrum_from_theta(self, theta, fname_powerspectrum, force_powerspectrum=False):
+        """Returns a power spectrum from its value at support wavenumbers, by performing a Spline interpolation.
 
         Parameters
         ----------
-        theta (array, double, dimension=S) : vector of power spectrum values at the support wavenumbers
-        fname_powerspectrum (string) : name of input/output power spectrum file
-        force_powerspectrum (optional, bool, default=False) : force recomputation?
+        theta : array, double, dimension=S
+            vector of power spectrum values at the support wavenumbers
+        fname_powerspectrum : :obj:`str`
+            name of input/output power spectrum file
+        force_powerspectrum : bool, optional, default=False
+            force recomputation?
 
         """
         from os.path import exists
@@ -106,24 +155,37 @@ class blackbox(object):
             P=PowerSpectrum.from_FourierGrid(G_sim,powerspectrum=powerspectrum)
             P.write(fname_powerspectrum)
         
-    def setup_parfiles(self, d, fname_simparfile, fname_mockparfile, fname_powerspectrum, fname_RngStateLPT, fname_whitenoise, fname_outputinitialdensity, fname_outputrealspacedensity, fname_outputdensity, fname_RngStateMock, fname_outputmock, fname_outputss, force_parfiles=False):
-        """Setup Simbelynë parameter file given the necessary inputs (see Simbelynë documentation for details)
+    def _setup_parfiles(self, d, fname_simparfile, fname_mockparfile, fname_powerspectrum, fname_RngStateLPT, fname_whitenoise, fname_outputinitialdensity, fname_outputrealspacedensity, fname_outputdensity, fname_RngStateMock, fname_outputmock, fname_outputss, force_parfiles=False):
+        """Sets up Simbelynë parameter file given the necessary inputs (see the Simbelynë documentation for details).
 
         Parameters
         ----------
-        d (int) : index giving the direction in parameter space: -1 for mock data, 0 for the expansion point, or from 1 to S
-        fname_simparfile (string) : name of output simulation parameter file
-        fname_mockparfile (string) : name of output mock parameter file
-        fname_powerspectrum (string) : name of input power spectrum file
-        fname_RngStateLPT (string) : name of output random number generator state file for LPT module
-        fname_whitenoise (string) : name of output white noise file
-        fname_outputinitialdensity (string) : name of output initial density field file
-        fname_outputrealspacedensity (string) : name of output real-space density field file
-        fname_outputdensity (string) : name of output redshift-space density field file
-        fname_RngStateMock (string) : name of output random number generator state file for Mock module
-        fname_outputmock (string) : name of output mock field file
-        fname_outputss (string) : name of output summary statistics file
-        force_parfiles (optional, bool, default=False) : overwrite if files already exists?
+        d : int
+            index giving the direction in parameter space: -1 for mock data, 0 for the expansion point, or from 1 to S
+        fname_simparfile : :obj:`str`
+            name of output simulation parameter file
+        fname_mockparfile : :obj:`str`
+            name of output mock parameter file
+        fname_powerspectrum : :obj:`str`
+            name of input power spectrum file
+        fname_RngStateLPT : :obj:`str`
+            name of output random number generator state file for LPT module
+        fname_whitenoise : :obj:`str`
+            name of output white noise file
+        fname_outputinitialdensity : :obj:`str`
+            name of output initial density field file
+        fname_outputrealspacedensity : :obj:`str`
+            name of output real-space density field file
+        fname_outputdensity : :obj:`str`
+            name of output redshift-space density field file
+        fname_RngStateMock : :obj:`str`
+            name of output random number generator state file for Mock module
+        fname_outputmock : :obj:`str`
+            name of output mock field file
+        fname_outputss : :obj:`str`
+            name of output summary statistics file
+        force_parfiles : bool, optional, default=False
+            overwrite if files already exists?
 
         """
         from os.path import exists
@@ -311,15 +373,19 @@ class blackbox(object):
                             )
             S.write(fname_mockparfile)
     
-    def run_sim(self, fname_simparfile, fname_simlogs, fname_outputdensity, force_sim=False):
-        """Run simulation with Simbelynë
+    def _run_sim(self, fname_simparfile, fname_simlogs, fname_outputdensity, force_sim=False):
+        """Runs a simulation with Simbelynë.
 
         Parameters
         ----------
-        fname_simparfile (string) : name of the input parameter file
-        fname_simlogs (string) : name of the output Simbelynë logs
-        fname_outputdensity (string) : name of the output density field to be written
-        force_sim (optional, bool, default=False) : force recomputation if output density already exists?
+        fname_simparfile : :obj:`str`
+            name of the input parameter file
+        fname_simlogs : :obj:`str`
+            name of the output Simbelynë logs
+        fname_outputdensity : :obj:`str`
+            name of the output density field to be written
+        force_sim : bool, optional, default=False
+            force recomputation if output density already exists?
 
         """
         from os.path import exists
@@ -327,15 +393,19 @@ class blackbox(object):
             from pysbmy import pySbmy
             pySbmy(fname_simparfile, fname_simlogs)
            
-    def run_mock(self, fname_mockparfile, fname_mocklogs, fname_outputss, force_mock=False):
-        """Run simulation with Simbelynë for mock data
+    def _run_mock(self, fname_mockparfile, fname_mocklogs, fname_outputss, force_mock=False):
+        """Runs a simulation with Simbelynë for mock data.
 
         Parameters
         ----------
-        fname_mockparfile (string) : name of the input parameter file
-        fname_mocklogs (string) : name of the output Simbelynë logs
-        fname_outputss (string) : name of the output summary statistics file to be written
-        force_mock (optional, bool, default=False) : force recomputation if output summary statistics file already exists?
+        fname_mockparfile : :obj:`str`
+            name of the input parameter file
+        fname_mocklogs : :obj:`str`
+            name of the output Simbelynë logs
+        fname_outputss : :obj:`str`
+            name of the output summary statistics file to be written
+        force_mock : bool, optional, default=False
+            force recomputation if output summary statistics file already exists?
 
         """
         from os.path import exists
@@ -343,16 +413,18 @@ class blackbox(object):
             from pysbmy import pySbmy
             pySbmy(fname_mockparfile, fname_mocklogs)
     
-    def compute_Phi(self, fname_outputss):
-        """Compute SELFI summary statistics (Phi) from Simbelynë output files
+    def _compute_Phi(self, fname_outputss):
+        """Computes summary statistics (Phi) from Simbelynë output files.
 
         Parameters
         ----------
-        fname_outputss (string) : name of Simbelynë output summary statistics file
+        fname_outputss : :obj:`str`
+            name of Simbelynë output summary statistics file
 
         Returns
         -------
-        Phi (array, double, size=P) : vector of summary statistics
+        Phi : array, double, dimension=P
+            vector of summary statistics
 
         """
         import h5py as h5
@@ -368,17 +440,18 @@ class blackbox(object):
         
         return Phi
     
-    def compute_Phi_DM(self, fname_outputdensity):
-        """Compute SELFI summary statistics (Phi) from Simbelynë output files
-        Alternative routine to compute_Phi using the dark matter field instead of galaxies, for testing purposes
+    def _compute_Phi_DM(self, fname_outputdensity):
+        """Compute summary statistics (Phi) from Simbelynë output files. Alternative routine to _compute_Phi using the dark matter field instead of galaxies, for testing purposes.
 
         Parameters
         ----------
-        fname_outputdensity (string) : name of Simbelynë output density field file
+        fname_outputdensity : :obj:`str`
+            name of Simbelynë output density field file
 
         Returns
         -------
-        Phi (array, double, size=P) : vector of summary statistics
+        Phi : array, double, dimension=P
+            vector of summary statistics
 
         """
         from pysbmy.field import read_field
@@ -388,14 +461,17 @@ class blackbox(object):
         Pk,Vk=get_autocorrelation(A, self.G_ss)
         return Pk/self.P_ss.powerspectrum
         
-    def clean_sbmy_outputs(self, fname_outputdensity, fname_outputmock, fname_outputss):
-        """Remove Simbelynë output files to save disk space
+    def _clean_sbmy_outputs(self, fname_outputdensity, fname_outputmock, fname_outputss):
+        """Removes Simbelynë output files to save disk space.
 
         Parameters
         ----------
-        fname_outputdensity (string) : name of output redshift-space density field file
-        fname_outputmock (string) : name of output mock field file
-        fname_outputss (string) : name of output summary statistics file
+        fname_outputdensity : :obj:`str`
+            name of output redshift-space density field file
+        fname_outputmock : :obj:`str`
+            name of output mock field file
+        fname_outputss : :obj:`str`
+            name of output summary statistics file
 
         """
         from os.path import exists
@@ -406,56 +482,85 @@ class blackbox(object):
         if exists(fname_outputmock): remove(fname_outputmock)
         if exists(fname_outputss): remove(fname_outputss)
     
-    def aux_blackbox(self, d, fname_powerspectrum, fname_simparfile, fname_mockparfile, fname_RngStateLPT, fname_whitenoise, fname_outputinitialdensity, fname_outputrealspacedensity, fname_outputdensity, fname_RngStateMock, fname_outputmock, fname_outputss, fname_simlogs, fname_mocklogs, force_parfiles=False, force_sim=False, force_mock=False):
-        """Auxiliary routine for the Simbelynë blackbox: generates a noisy realization from an input power spectrum object, and returns its normalized estimated power spectrum
+    def _aux_blackbox(self, d, fname_powerspectrum, fname_simparfile, fname_mockparfile, fname_RngStateLPT, fname_whitenoise, fname_outputinitialdensity, fname_outputrealspacedensity, fname_outputdensity, fname_RngStateMock, fname_outputmock, fname_outputss, fname_simlogs, fname_mocklogs, force_parfiles=False, force_sim=False, force_mock=False):
+        """Auxiliary routine for the Simbelynë blackbox: generates a noisy realization from an input power spectrum object, and returns its normalized estimated power spectrum.
 
         Parameters
         ----------
-        d (int) : index giving the direction in parameter space: -1 for mock data, 0 for the expansion point, or from 1 to S
-        fname_powerspectrum (string) : name of input power spectrum file
-        fname_simparfile (string) : name of output simulation parameter file
-        fname_mockparfile (string) : name of output mock parameter file
-        fname_RngStateLPT (string) : name of output random number generator state file for LPT module
-        fname_whitenoise (string) : name of output white noise file
-        fname_outputinitialdensity (string) : name of output initial density field file
-        fname_outputrealspacedensity (string) : name of output real-space density field file
-        fname_outputdensity (string) : name of output redshift-space density field file
-        fname_RngStateMock (string) : name of output random number generator state file for Mock module
-        fname_outputmock (string) : name of output mock field file
-        fname_outputss (string) : name of output summary statistics file
-        fname_simlogs (string) : name of the output Simbelynë logs
-        fname_mocklogs (string) : name of the output Simbelynë logs
-        force_parfiles (optional, bool, default=False) : overwrite if parameter files already exists?
-        force_sim (optional, bool, default=False) : force recomputation if output density already exists?
-        force_mock (optional, bool, default=False) : force recomputation if output mock summary statistics file already exists?
+        d : int
+            index giving the direction in parameter space: -1 for mock data, 0 for the expansion point, or from 1 to S
+        fname_powerspectrum : :obj:`str`
+            name of input power spectrum file
+        fname_simparfile : :obj:`str`
+            name of output simulation parameter file
+        fname_mockparfile : :obj:`str`
+            name of output mock parameter file
+        fname_RngStateLPT : :obj:`str`
+            name of output random number generator state file for LPT module
+        fname_whitenoise : :obj:`str`
+            name of output white noise file
+        fname_outputinitialdensity : :obj:`str`
+            name of output initial density field file
+        fname_outputrealspacedensity : :obj:`str`
+            name of output real-space density field file
+        fname_outputdensity : :obj:`str`
+            name of output redshift-space density field file
+        fname_RngStateMock : :obj:`str`
+            name of output random number generator state file for Mock module
+        fname_outputmock : :obj:`str`
+            name of output mock field file
+        fname_outputss : :obj:`str`
+            name of output summary statistics file
+        fname_simlogs : :obj:`str`
+            name of the output Simbelynë logs
+        fname_mocklogs : :obj:`str`
+            name of the output Simbelynë logs
+        force_parfiles : bool, optional, default=False
+            overwrite if parameter files already exists?
+        force_sim : bool, optional, default=False
+            force recomputation if output density already exists?
+        force_mock : bool, optional, default=False
+            force recomputation if output mock summary statistics file already exists?
+
+        Returns
+        -------
+        Phi : array, double, dimension=P
+            vector of summary statistics
 
         """
         # Prepare parameter files
-        self.setup_parfiles(d, fname_simparfile, fname_mockparfile, fname_powerspectrum, fname_RngStateLPT, fname_whitenoise, fname_outputinitialdensity, fname_outputrealspacedensity, fname_outputdensity, fname_RngStateMock, fname_outputmock, fname_outputss, force_parfiles)
+        self._setup_parfiles(d, fname_simparfile, fname_mockparfile, fname_powerspectrum, fname_RngStateLPT, fname_whitenoise, fname_outputinitialdensity, fname_outputrealspacedensity, fname_outputdensity, fname_RngStateMock, fname_outputmock, fname_outputss, force_parfiles)
         
         # Run simulations
-        self.run_sim(fname_simparfile, fname_simlogs, fname_outputdensity, force_sim)
-        self.run_mock(fname_mockparfile, fname_mocklogs, fname_outputss, force_mock)
-        Phi = self.compute_Phi(fname_outputss)
-        #Phi = self.compute_Phi_DM(fname_outputdensity) # TEST: Alternatively, the dark matter field can be used instead of galaxies
+        self._run_sim(fname_simparfile, fname_simlogs, fname_outputdensity, force_sim)
+        self._run_mock(fname_mockparfile, fname_mocklogs, fname_outputss, force_mock)
+        Phi = self._compute_Phi(fname_outputss)
+        #Phi = self._compute_Phi_DM(fname_outputdensity) # TEST: Alternatively, the dark matter field can be used instead of galaxies
         
         return Phi
     
     def make_data(self, cosmo, i=0, force_powerspectrum=False, force_parfiles=False, force_sim=False, force_mock=False, force_cosmo=False):
-        """Evaluates the Simbelynë blackbox to make mock data, from input cosmological parameters
+        """Evaluates the Simbelynë blackbox to make mock data, from input cosmological parameters.
 
         Parameters
         ----------
-        cosmo (dictionary) : cosmological parameters (and some infrastructure parameters)
-        i (optional, int, default=0) : current evaluation index of the blackbox
-        force_powerspectrum (optional, bool, default=False) : force recomputation of the power spectrum?
-        force_parfiles (optional, bool, default=False) : overwrite if parameter files already exists?
-        force_sim (optional, bool, default=False) : force recomputation if output density already exists?
-        force_mock (optional, bool, default=False) : force recomputation if output mock summary statistics file already exists?
+        cosmo : dictionary
+            cosmological parameters (and some infrastructure parameters)
+        i : int, optional, default=0
+            current evaluation index of the blackbox
+        force_powerspectrum : bool, optional, default=False
+            force recomputation of the power spectrum?
+        force_parfiles : bool, optional, default=False
+            overwrite if parameter files already exists?
+        force_sim : bool, optional, default=False
+            force recomputation if output density already exists?
+        force_mock : bool, optional, default=False
+            force recomputation if output mock summary statistics file already exists?
 
         Returns
         -------
-        Phi (array, double, size=P) : vector of summary statistics
+        Phi : array, double, dimension=P
+            vector of summary statistics
 
         """
         from pyselfi.utils import PrintMessage, INDENT, UNINDENT
@@ -480,36 +585,46 @@ class blackbox(object):
         fname_mocklogs = self.fsimdir+"/data/logs_mock_"+str(i)+".txt"
         
         # Save cosmological parameters
-        self.save_cosmo(cosmo, fname_cosmo, force_cosmo)
+        self._save_cosmo(cosmo, fname_cosmo, force_cosmo)
         
         # Generate input initial power spectrum from cosmological parameters
-        self.get_powerspectrum_from_cosmo(cosmo, fname_powerspectrum, force_powerspectrum)
+        self._get_powerspectrum_from_cosmo(cosmo, fname_powerspectrum, force_powerspectrum)
         
         # Call auxiliary blackbox method
-        Phi = self.aux_blackbox(-1, fname_powerspectrum, fname_simparfile, fname_mockparfile, fname_RngStateLPT, fname_whitenoise, fname_outputinitialdensity, fname_outputrealspacedensity, fname_outputdensity, fname_RngStateMock, fname_outputmock, fname_outputss, fname_simlogs, fname_mocklogs, force_parfiles, force_sim, force_mock)
+        Phi = self._aux_blackbox(-1, fname_powerspectrum, fname_simparfile, fname_mockparfile, fname_RngStateLPT, fname_whitenoise, fname_outputinitialdensity, fname_outputrealspacedensity, fname_outputdensity, fname_RngStateMock, fname_outputmock, fname_outputss, fname_simlogs, fname_mocklogs, force_parfiles, force_sim, force_mock)
         
         UNINDENT()
         PrintMessage(3, "Making mock data done.")
         return Phi
     
     def evaluate(self, theta, d, i=0, N=0, force_powerspectrum=False, force_parfiles=False, force_sim=False, force_mock=False, remove_sbmy=True):
-        """Evaluates the Simbelynë blackbox from an input vector of power spectrum coefficients at the support wavenumbers
+        """Evaluates the Simbelynë blackbox from an input vector of power spectrum coefficients at the support wavenumbers.
 
         Parameters
         ----------
-        theta (array, double, dimension=S) : vector of power spectrum values at the support wavenumbers
-        d (int) : index giving the direction in parameter space: -1 for mock data, 0 for the expansion point, or from 1 to S
-        i (optional, int, default=0) : current evaluation index of the blackbox
-        N (optional, int, default=0) : total number of evaluations of the blackbox
-        force_powerspectrum (optional, bool, default=False) : force recomputation of the power spectrum?
-        force_parfiles (optional, bool, default=False) : overwrite if parameter files already exists?
-        force_sim (optional, bool, default=False) : force recomputation if output density already exists?
-        force_mock (optional, bool, default=False) : force recomputation if output mock summary statistics file already exists?
-        remove_sbmy (optional, bool, default=True) : remove Simbelynë output files from disk?
+        theta : array, double, dimension=S
+            vector of power spectrum values at the support wavenumbers
+        d : int
+            index giving the direction in parameter space: -1 for mock data, 0 for the expansion point, or from 1 to S
+        i : int, optional, default=0
+            current evaluation index of the blackbox
+        N : int, optional, default=0
+            total number of evaluations of the blackbox
+        force_powerspectrum : bool, optional, default=False
+            force recomputation of the power spectrum?
+        force_parfiles : bool, optional, default=False
+            overwrite if parameter files already exists?
+        force_sim : bool, optional, default=False
+            force recomputation if output density already exists?
+        force_mock : bool, optional, default=False
+            force recomputation if output mock summary statistics file already exists?
+        remove_sbmy : bool, optional, default=True
+            remove Simbelynë output files from disk?
 
         Returns
         -------
-        Phi (array, double, size=P) : vector of summary statistics
+        Phi : array, double, dimension=P
+            vector of summary statistics
 
         """
         from pyselfi.utils import PrintMessage, PrintValue, INDENT, UNINDENT
@@ -533,14 +648,14 @@ class blackbox(object):
         fname_mocklogs = self.fsimdir+"/d"+str(d)+"/logs_mock_d"+str(d)+"_p"+str(i-1)+".txt"
         
         # Interpolate P to get P_in
-        self.get_powerspectrum_from_theta(theta, fname_powerspectrum, force_powerspectrum)
+        self._get_powerspectrum_from_theta(theta, fname_powerspectrum, force_powerspectrum)
         
         # Call auxiliary blackbox method
-        Phi = self.aux_blackbox(d, fname_powerspectrum, fname_simparfile, fname_mockparfile, fname_RngStateLPT, fname_whitenoise, fname_outputinitialdensity, fname_outputrealspacedensity, fname_outputdensity, fname_RngStateMock, fname_outputmock, fname_outputss, fname_simlogs, fname_mocklogs, force_parfiles, force_sim, force_mock)
+        Phi = self._aux_blackbox(d, fname_powerspectrum, fname_simparfile, fname_mockparfile, fname_RngStateLPT, fname_whitenoise, fname_outputinitialdensity, fname_outputrealspacedensity, fname_outputdensity, fname_RngStateMock, fname_outputmock, fname_outputss, fname_simlogs, fname_mocklogs, force_parfiles, force_sim, force_mock)
         
         # Clean Simbelynë outputs
         if remove_sbmy:
-            self.clean_sbmy_outputs(fname_outputdensity, fname_outputmock, fname_outputss)
+            self._clean_sbmy_outputs(fname_outputdensity, fname_outputmock, fname_outputss)
         
         UNINDENT()
         PrintMessage(3, "Evaluating blackbox ({}/{}) done.".format(i,N))
@@ -548,19 +663,31 @@ class blackbox(object):
         return Phi
 
     def compute_pool(self, theta, d, pool_fname, N, force_powerspectrum=False, force_parfiles=False, force_sim=False, force_mock=False):
-        """Computes a pool of realizations of the Simbelynë blackbox
-        A method compute_pool with this prototype is the only mandatory method
+        """Computes a pool of realizations of the Simbelynë blackbox. A method compute_pool with this prototype is the only mandatory method.
 
         Parameters
         ----------
-        theta (array, double, dimension=S) : vector of power spectrum values at the support wavenumbers
-        d (int) : direction in parameter space, from 0 to S
-        pool_fname (string) : pool file name
-        N (int) : number of realizations required
-        force_powerspectrum (optional, bool, default=False) : force recomputation of the power spectrum?
-        force_parfiles (optional, bool, default=False) : overwrite if parameter files already exists?
-        force_sim (optional, bool, default=False) : force recomputation if output density already exists?
-        force_mock (optional, bool, default=False) : force recomputation if output mock summary statistics file already exists?
+        theta : array, double, dimension=S
+            vector of power spectrum values at the support wavenumbers
+        d : int
+            direction in parameter space, from 0 to S
+        pool_fname : :obj:`str`
+            pool file name
+        N : int
+            number of realizations required
+        force_powerspectrum : bool, optional, default=False
+            force recomputation of the power spectrum?
+        force_parfiles : bool, optional, default=False
+            overwrite if parameter files already exists?
+        force_sim : bool, optional, default=False
+            force recomputation if output density already exists?
+        force_mock : bool, optional, default=False
+            force recomputation if output mock summary statistics file already exists?
+
+        Returns
+        -------
+        p : :obj:`pool`
+            simulation pool
 
         """
         from pyselfi.pool import pool
@@ -569,8 +696,8 @@ class blackbox(object):
         # Run N evaluations of the blackbox at the desired point
         while not p.finished:
             i = p.N_sims+1
-            phi = self.evaluate(theta,d,i,N,force_powerspectrum,force_parfiles,force_sim,force_mock)
-            p.add_sim(phi)
+            Phi = self.evaluate(theta,d,i,N,force_powerspectrum,force_parfiles,force_sim,force_mock)
+            p.add_sim(Phi)
             if i%self.save_frequency==0:
                 p.save()
         p.save()
@@ -578,13 +705,16 @@ class blackbox(object):
         return p
     
     def make_survey_geometry(self, N_CAT, cosmo, force=False):
-        """Produces a mock survey geometry file
+        """Produces a mock survey geometry file.
 
         Parameters
         ----------
-        N_CAT (int) : number of subcatalogs
-        cosmo (dictionary) : cosmological parameters (and some infrastructure parameters)
-        force (optional, bool, default=False) : force recomputation if file already exists?
+        N_CAT : int
+            number of subcatalogs
+        cosmo : dictionary
+            cosmological parameters (and some infrastructure parameters)
+        force : bool, optional, default=False
+            force recomputation if file already exists?
 
         """
         from os.path import exists
@@ -706,17 +836,4 @@ class blackbox(object):
 
             S=SurveyGeometry(L0,L1,L2,corner0,corner1,corner2,N0,N1,N2,N_CAT,cosmo,bright_cut,faint_cut,rmin,rmax,zmin,zmax,N_BIAS,galaxy_bias_mean,galaxy_bias_std,galaxy_nmean_mean,galaxy_nmean_std,galaxy_sel_window)
             S.write(fname)
-    
-    def make_ss_k_grid(self, force=False):
-        """Produces the summary statistics Fourier grid
-
-        Parameters
-        ----------
-        force (optional, bool, default=False) : force recomputation if file already exists?
-
-        """
-        from os.path import exists
-        fname = self.fsimdir+"/"+self.fname_inputsskgrid
-        if not exists(fname) or force:
-            self.G_ss.write(fname)
 #end class(blackbox)

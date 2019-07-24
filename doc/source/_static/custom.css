@@ -1,0 +1,39 @@
+.wy-side-nav-search, .wy-nav-top {
+    background: #292b30 url('http://florent-leclercq.eu/css/images/bg1_1.jpg');
+}
+
+.wy-nav-content
+{
+    background: #292b30 url('http://florent-leclercq.eu/css/images/bg1.jpg');
+    color: #737373;
+    font-size: 11pt;
+    line-height: 1.75em;
+}
+
+a, a:visited
+{
+    color: #009CBC;
+    text-decoration: none;
+}
+
+a:hover
+{
+    color: #00ACD7;
+    text-decoration: underline;
+}
+
+h1,h2,h3,h4,h5,h6
+{
+    color: #707070;
+    text-shadow: -1px -1px 1px rgba(0,0,0,0.2);
+}
+
+.wy-side-nav-search>a, .wy-side-nav-search .wy-dropdown>a
+{
+    color: #fcfcfc;
+}
+
+.wy-menu-vertical header, .wy-menu-vertical p.caption
+{
+    color: #9b9b9b;
+}

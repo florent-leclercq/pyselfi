@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #-------------------------------------------------------------------------------------
-# pySELFI v1.1 -- pyselfi/__init__.py
+# pySELFI v1.1 -- pyselfi_examples/templates/new_selfi.py
 # Copyright (C) 2019-2019 Florent Leclercq.
 # 
 # This file is part of the pySELFI distribution
@@ -18,15 +18,30 @@
 # The text of the license is located in the root directory of the source package.
 #-------------------------------------------------------------------------------------
 
-"""pyselfi __init__
+"""Template for a new "selfi" for pySELFI
 """
 
 __author__  = "Florent Leclercq"
-__date__    = "2018-2019"
 __version__ = "1.1"
+__date__    = "2018-2019"
 __license__ = "GPLv3"
 
-from .selfi import selfi
-from .likelihood import likelihood
-from .posterior import posterior
-from .pool import pool
+from pyselfi import selfi
+
+class child_selfi(selfi):
+    """This class represents a child "selfi" object.
+    """
+    
+    def additional_method(self, **kwargs):
+        """An additional method for "selfi" objects
+
+        Parameters
+        ----------
+        **kwargs : dictionary, optional
+            any argument
+
+
+        """
+        return result
+    
+# end class(child_selfi)

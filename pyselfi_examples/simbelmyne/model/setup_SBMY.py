@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #-------------------------------------------------------------------------------------
-# pySELFI v1.0 -- examples/grf/model/setup_GRF.py
+# pySELFI v1.1 -- pyselfi_examples/simbelmyne/model/setup_SBMY.py
 # Copyright (C) 2019-2019 Florent Leclercq.
 # 
 # This file is part of the pySELFI distribution
@@ -18,11 +18,11 @@
 # The text of the license is located in the root directory of the source package.
 #-------------------------------------------------------------------------------------
 
-"""Setup script for the pySELFI Gaussian random field example
+"""Setup script for the pySELFI Galaxy survey example
 """
 
 __author__  = "Florent Leclercq"
-__version__ = "1.0"
+__version__ = "1.1"
 __date__    = "2018-2019"
 __license__ = "GPLv3"
 
@@ -30,7 +30,7 @@ import numpy as np
 import h5py as h5
 from os.path import dirname, realpath, exists
 from pysbmy.power import PowerSpectrum, FourierGrid, get_Pk
-from .blackbox_GRF import blackbox
+from pyselfi_examples.simbelmyne.model.blackbox_SBMY import blackbox
 from pyselfi.power_spectrum.prior import power_spectrum_prior
 from pyselfi.power_spectrum.selfi import power_spectrum_selfi
 
@@ -43,7 +43,8 @@ force=False
 L0=L1=L2=1000.
 corner0=corner1=corner2=-500.
 N0=N1=N2=256
-a_min=1e-3
+Np0=Np1=Np2=512
+Npm0=Npm1=Npm2=1024
 if not exists(fdir+"G_sim.h5") or force:
     G_sim=FourierGrid(L0,L1,L2,N0,N1,N2)
     G_sim.write(fdir+"G_sim.h5")
@@ -101,7 +102,7 @@ Ne=150
 Delta_theta=1e-2
 
 # Simulator setup
-noise_std=1e-2
+fname_inputsurveygeometry="input_survey_geometry.h5"
 P=50
 k_ss_min=2.0e-2
 k_ss_max=0.5
@@ -121,22 +122,28 @@ if not exists(fdir+"P_ss.h5") or force:
     P_ss.write(fdir+"P_ss.h5")
 else:
     P_ss=PowerSpectrum.read(fdir+"P_ss.h5")
-seedphases=1
-fixphases=False
-seednoise=188436
-fixnoise=False
-save_frequency=10
-blackbox=blackbox(P,theta2P=theta2P,k_s=k_s,G_sim=G_sim,P_ss=P_ss,corner0=corner0,corner1=corner1,corner2=corner2,a_min=a_min,noise_std=noise_std,seedphases=seedphases,fixphases=fixphases,seednoise=seednoise,fixnoise=fixnoise,save_frequency=save_frequency)
+
+b_cut=10.
+bright_apparent_magnitude_cut = 0
+faint_apparent_magnitude_cut = 18.5
+bright_absolute_magnitude_cut = -25.00
+faint_absolute_magnitude_cut = -21.00
+Mstar = -20.44
+alpha = -1.05
+
+save_frequency=1
+blackbox=blackbox(P,theta2P=theta2P,k_s=k_s,G_sim=G_sim,G_ss=G_ss,P_ss=P_ss,corner0=corner0,corner1=corner1,corner2=corner2,Np0=Np0,Npm0=Npm0,fdir=fdir,fsimdir=fdir,fname_inputsurveygeometry=fname_inputsurveygeometry,b_cut=b_cut,bright_apparent_magnitude_cut=bright_apparent_magnitude_cut,faint_apparent_magnitude_cut=faint_apparent_magnitude_cut,bright_absolute_magnitude_cut=bright_absolute_magnitude_cut,faint_absolute_magnitude_cut=faint_absolute_magnitude_cut,Mstar=Mstar,alpha=alpha,save_frequency=save_frequency)
+
+# Survey geometry
+blackbox.make_survey_geometry(1,cosmo_exp,force=force)
 
 # Observed data
 np.random.seed(181249)
 omega=np.random.multivariate_normal(planck_mean, planck_cov)
 cosmo_obs={'h':omega[0], 'Omega_r':0., 'Omega_q':1.-omega[2], 'Omega_b':omega[1], 'Omega_m':omega[2], 'm_ncdm':0., 'Omega_k':0., 'tau_reio':0.066, 'n_s':omega[3], 'sigma8':omega[4], 'w0_fld':-1., 'wa_fld':0., 'k_max':10.0, 'WhichSpectrum':"EH"}
 
-seedphasesobs=482340
-seednoiseobs=329855
 if not exists(fdir+"phi_obs.npy") or force:
-    phi_obs=blackbox.make_data(cosmo_obs,fdir+"data_input_power.h5",seedphasesobs,seednoiseobs,force=True)
+    phi_obs=blackbox.make_data(cosmo_obs,0,force_powerspectrum=force,force_parfiles=force,force_sim=force,force_mock=force,force_cosmo=force)
     np.save(fdir+"phi_obs",phi_obs)
 else:
     phi_obs=np.load(fdir+"phi_obs.npy")
@@ -173,8 +180,8 @@ else:
     theta_fiducial=A["theta_fiducial"]
 
 # Output files
-fname=fdir+"selfi_GRF_iter"+str(i_iter)+".h5"
-pool_prefix=fdir+"pools_GRF_iter"+str(i_iter)+"/pool_"
+fname=fdir+"selfi_SBMY_iter"+str(i_iter)+".h5"
+pool_prefix=fdir+"pools_SBMY_iter"+str(i_iter)+"/pool_"
 pool_suffix=".h5"
 
-selfi_GRF=power_spectrum_selfi(fname,pool_prefix,pool_suffix,prior,blackbox,theta_0,Ne,Ns,Delta_theta,phi_obs)
+selfi_SBMY=power_spectrum_selfi(fname,pool_prefix,pool_suffix,prior,blackbox,theta_0,Ne,Ns,Delta_theta,phi_obs)

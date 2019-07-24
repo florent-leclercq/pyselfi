@@ -1,3 +1,5 @@
+TODO
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -20,9 +22,6 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
-
-# Documentation
-doc/
 
 # IPython Notebook
 .ipynb_checkpoints

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #-------------------------------------------------------------------------------------
-# pySELFI v1.1 -- pyselfi/__init__.py
+# pySELFI v1.1 -- pyselfi/power_spectrum/__init__.py
 # Copyright (C) 2019-2019 Florent Leclercq.
 # 
 # This file is part of the pySELFI distribution
@@ -26,7 +26,5 @@ __date__    = "2018-2019"
 __version__ = "1.1"
 __license__ = "GPLv3"
 
-from .selfi import selfi
-from .likelihood import likelihood
-from .posterior import posterior
-from .pool import pool
+from .prior import power_spectrum_prior
+from .selfi import power_spectrum_selfi

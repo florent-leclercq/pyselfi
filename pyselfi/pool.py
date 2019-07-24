@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #-------------------------------------------------------------------------------------
-# pySELFI v1.0 -- pyselfi/pool.py
+# pySELFI v1.1 -- pyselfi/pool.py
 # Copyright (C) 2019-2019 Florent Leclercq.
 # 
 # This file is part of the pySELFI distribution
@@ -18,29 +18,30 @@
 # The text of the license is located in the root directory of the source package.
 #-------------------------------------------------------------------------------------
 
-"""Routines related to simulation pools
+"""Routines related to simulation pools.
 """
 
 __author__  = "Florent Leclercq"
-__version__ = "1.0"
+__version__ = "1.1"
 __date__    = "2018-2019"
 __license__ = "GPLv3"
 
 class pool(object):
-    """This class represents a pool of simulations
-    at a given point in parameter space
+    """This class represents a pool of simulations at a given point in parameter space.
+
+    Attributes
+    ----------
+    fname : :obj:`str`
+        filename of the pool to load or create
+    N_target : int, optional
+        number of simulations desired in the pool
+
     """
    
     
     # Initialization
     def __init__(self,fname,N_target=None):
-        """Initializes a pool object
-
-        Parameters
-        ----------
-        fname (string) : filename of the pool to load or create
-        N_target (optional, int) : number of simulations desired in the pool
-
+        """Initializes a pool object.
         """
         import h5py as h5
         import numpy as np
@@ -77,17 +78,18 @@ class pool(object):
         
     @property
     def N_sims(self):
-        if self.Phi is not None:
-            return self.Phi.shape[0]
-        else:
-            return 0
+        """int: Number of simulations currently available in the pool
+        """
+        return self.Phi.shape[0] if self.Phi is not None else 0
     
     @property
     def finished(self):
-        return self.N_sims>=self.N_target
+        """bool: Whether the number of available simulations is larger than the target number
+        """
+        return self.N_sims>=self.N_target if self.N_target is not None else True
     
     def save(self):
-        """Saves the pool to its output file
+        """Saves the pool to its output file.
         """
         import h5py as h5
         from ctypes import c_float
@@ -103,11 +105,12 @@ class pool(object):
         PrintMessage(3, "Save pool to data file '{}' done.".format(self.fname))
     
     def add_sim(self,phi):
-        """Add a simulation to the pool
+        """Adds a simulation to the pool.
 
         Parameters
         ----------
-        phi (double, dimension=P) : summaries of the simulation to be added
+        phi : array, double, dimension=P
+            summaries of the simulation to be added ot the pool
 
         """
         import numpy as np

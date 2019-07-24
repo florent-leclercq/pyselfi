@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #-------------------------------------------------------------------------------------
-# pySELFI v1.0 -- pyselfi/power_spectrum/prior.py
+# pySELFI v1.1 -- pyselfi/power_spectrum/prior.py
 # Copyright (C) 2019-2019 Florent Leclercq.
 # 
 # This file is part of the pySELFI distribution
@@ -18,32 +18,41 @@
 # The text of the license is located in the root directory of the source package.
 #-------------------------------------------------------------------------------------
 
-"""SELFI power spectrum prior
+"""Routines related to the SELFI power spectrum prior.
+
+.. _Leclercqetal2019: https://arxiv.org/abs/1902.10149
+
+.. |Leclercqetal2019| replace:: Leclercq *et al*. (2019)
 """
 
 __author__  = "Florent Leclercq"
-__version__ = "1.0"
+__version__ = "1.1"
 __date__    = "2018-2019"
 __license__ = "GPLv3"
 
 class power_spectrum_prior(object):
-    """This class represents the SELFI prior
-    See equations (20)-(23) in Leclercq et al. 2019 for expressions
+    """This class represents the SELFI power spectrum prior. See equations (20)-(23) in |Leclercqetal2019|_ for expressions.
+
+    Attributes
+    ----------
+    k_s : array, double, dimension=S
+        array of support wavenumbers
+    theta_0 : array, double, dimension=S
+        prior mean
+    theta_norm : double
+        overall amplitude of the prior covariance matrix
+    k_corr : double
+        wavenumber of the length scale of prior correlations
+    alpha_cv : double
+        strength of cosmic variance
+    log_kmodes : bool, optional, default=False
+        take RBF in log(k) instead of k?
+
     """
     
     # Initialization
     def __init__(self,k_s,theta_0,theta_norm,k_corr,alpha_cv,log_kmodes=False):
-        """Initializes a prior object
-        
-        Parameters
-        ----------
-        k_s (array, double, dimension=S) : array of support wavenumbers
-        theta_0 (array, double, dimension=S) : prior mean
-        theta_norm (double) : overall amplitude of the prior covariance matrix
-        k_corr (double) : wavenumber of the length scale of prior correlations
-        alpha_cv (double) : strength of cosmic variance
-        log_kmodes (optional, bool, default=False) : take RBF in log(k) instead of k?
-        
+        """Initializes a prior object.
         """
         self.k_s=k_s
         self.mean=theta_0
@@ -56,51 +65,59 @@ class power_spectrum_prior(object):
         
     @property
     def gamma(self):
+        """double: Defined by :math:`\gamma \equiv 1/(2 k_\mathrm{corr}^2)`
+        """
         return 1/(2*self.k_corr**2)
     
     @property
     def gamma_log(self):
+        """double: Defined by :math:`\gamma_\mathrm{log} \equiv 1/(2 \log k_\mathrm{corr}^2)`
+        """        
         import numpy as np
         return 1/(2*np.log(self.k_corr)**2)
 
     def Nbin_min(self,k_min):
-        """Finds the index of the minimal wavenumber given k_min
+        """Finds the index of the minimal wavenumber given k_min.
 
         Parameters
         ----------
-        k_min (double) : minimal wavenumber
+        k_min : double
+            minimal wavenumber
 
         Returns
         -------
-        Nbin_min (int) : minimal index such that k_s[Nbin_min] >= k_min
+        Nbin_min : int
+            minimal index such that k_s[Nbin_min] >= k_min
 
         """
         import numpy as np
         return np.where(self.k_s>=k_min)[0].min()
     
     def Nbin_max(self,k_max):
-        """Finds the index of the maximal wavenumber given k_max
+        """Finds the index of the maximal wavenumber given k_max.
 
         Parameters
         ----------
-        k_max (double) : maximal wavenumber
+        k_max : double
+            maximal wavenumber
 
         Returns
         -------
-        Nbin_max (int) : maximal index such that k_s[Nbin_max] <= k_max
+        Nbin_max : int
+            maximal index such that k_s[Nbin_max] <= k_max
 
         """
         import numpy as np
         return np.where(self.k_s<=k_max)[0].max()+1
     
-    def get_rbf(self):
-        """Get the radial basis function (RBF) part of the prior
-        covariance matrix (equation (20) in Leclercq et al. 2019)
-        
+    def _get_rbf(self):
+        """Gets the radial basis function (RBF) part of the prior covariance matrix. See equation (20) in |Leclercqetal2019|_.
+
         Returns
         -------
-        K (array, double, dimension=(S,S)) : RBF kernel
-        
+        K : array, double, dimension=(S,S)
+            RBF kernel
+
         """        
         import numpy as np
         from sklearn.metrics.pairwise import rbf_kernel
@@ -112,14 +129,14 @@ class power_spectrum_prior(object):
         
         return K
     
-    def get_cosmic_variance(self):
-        """Get the cosmic variance part of the prior
-        covariance matrix, u*u^T (equations (21)-(22) in Leclercq et al. 2019)
-        
+    def _get_cosmic_variance(self):
+        """Gets the cosmic variance part of the prior covariance matrix, :math:`\\textbf{u}\\textbf{u}^\intercal`. See equations (21)-(22) in |Leclercqetal2019|_.
+
         Returns
         -------
-        V (array, double, dimension=(S,S)) : cosmic variance matrix
-        
+        V : array, double, dimension=(S,S)
+            cosmic variance matrix
+
         """
         import numpy as np
         k_s=self.k_s
@@ -129,9 +146,14 @@ class power_spectrum_prior(object):
         
         return V
     
-    def get_covariance(self):
-        """Get the full prior covariance matrix
-        (equation (22) in Leclercq et al. 2019)
+    def _get_covariance(self):
+        """Gets the full prior covariance matrix. See equation (22) in |Leclercqetal2019|_.
+
+        Returns
+        -------
+        S : array, double, dimension=(S,S)
+            covariance matrix of the prior
+
         """
         import numpy as np
         K=self.rbf
@@ -140,8 +162,14 @@ class power_spectrum_prior(object):
         
         return S
     
-    def get_inverse_covariance(self):
-        """Get the inverse covariance matrix
+    def _get_inverse_covariance(self):
+        """Gets the inverse covariance matrix.
+
+        Returns
+        -------
+        inv_S : array, double, dimension=(S,S)
+            inverse covariance matrix of the prior
+
         """
         import numpy as np
         from pyselfi.utils import regular_inv
@@ -151,19 +179,20 @@ class power_spectrum_prior(object):
         return inv_S
 
     def compute(self):
-        """Computes the prior (covariance matrix and its inverse)
+        """Computes the prior (covariance matrix and its inverse).
         """
-        self.rbf = self.get_rbf()
-        self.cv = self.get_cosmic_variance()
-        self.covariance = self.get_covariance()
-        self.inv_covariance = self.get_inverse_covariance()
+        self.rbf = self._get_rbf()
+        self.cv = self._get_cosmic_variance()
+        self.covariance = self._get_covariance()
+        self.inv_covariance = self._get_inverse_covariance()
         
     def save(self,fname):
-        """Saves the prior to an output file
+        """Saves the prior to an output file.
         
         Parameters
         ----------
-        fname (string) : output filename
+        fname : :obj:`str`
+            output filename
         
         """
         import h5py as h5
@@ -188,12 +217,18 @@ class power_spectrum_prior(object):
     
     @classmethod
     def load(cls,fname):
-        """Loads the prior from an input file
-        
+        """Loads the prior from an input file.
+
         Parameters
         ----------
-        fname (string) : input filename
-        
+        fname : :obj:`str`
+            input filename
+
+        Returns
+        -------
+        prior : :obj:`prior`
+            loaded prior object
+
         """
         import h5py as h5
         import numpy as np

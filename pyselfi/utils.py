@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #-------------------------------------------------------------------------------------
-# pySELFI v1.0 -- pyselfi/utils.py
+# pySELFI v1.1 -- pyselfi/utils.py
 # Copyright (C) 2019-2019 Florent Leclercq.
 # 
 # This file is part of the pySELFI distribution
@@ -18,11 +18,11 @@
 # The text of the license is located in the root directory of the source package.
 #-------------------------------------------------------------------------------------
 
-"""Generic infrastructure routines
+"""Generic infrastructure routines.
 """
 
 __author__  = "Florent Leclercq"
-__version__ = "1.0"
+__version__ = "1.1"
 __date__    = "2018-2019"
 __license__ = "GPLv3"
 
@@ -70,26 +70,28 @@ SCREEN_VERBOSE_LEVEL	=4
 G__ind__		=0
 
 def INDENT():
-    """Indents the current level of outputs
+    """Indents the current level of outputs.
     """
     global G__ind__
     G__ind__+=1
     return G__ind__
 
 def UNINDENT():
-    """Unindents the current level of outputs
+    """Unindents the current level of outputs.
     """
     global G__ind__
     G__ind__-=1
     return G__ind__
 
 def PrintLeftType(message_type, FONT_COLOR):
-    """Prints the type of output to screen
+    """Prints the type of output to screen.
 
     Parameters
     ----------
-    message_type (string) : type of message
-    FONT_COLOR (string) : font color for this type of message
+    message_type : :obj:`str`
+        type of message
+    FONT_COLOR : :obj:`str`
+        font color for this type of message
 
     """
     from time import localtime, strftime
@@ -100,12 +102,14 @@ def PrintLeftType(message_type, FONT_COLOR):
     sys.stdout.write("|")
 
 def PrintMessage(verbosity, message):
-    """Prints a message to screen
+    """Prints a message to screen.
 
     Parameters
     ----------
-    verbosity (int) : verbosity of the message
-    message (string) : message
+    verbosity : int
+        verbosity of the message
+    message : :obj:`str`
+        message
 
     """
     if(SCREEN_VERBOSE_LEVEL>=verbosity):
@@ -115,11 +119,12 @@ def PrintMessage(verbosity, message):
         sys.stdout.flush()
 
 def PrintInfo(message):
-    """Prints an information to screen
+    """Prints an information to screen.
 
     Parameters
     ----------
-    message (string) : message
+    message : :obj:`str`
+        message
 
     """
     if(SCREEN_VERBOSE_LEVEL>=INFO_VERBOSITY):
@@ -129,12 +134,14 @@ def PrintInfo(message):
         sys.stdout.flush()
 
 def PrintDiagnostic(verbosity, message):
-    """Prints a diagnostic to screen
+    """Prints a diagnostic to screen.
 
     Parameters
     ----------
-    verbosity (int) : verbosity of the message
-    message (string) : message
+    verbosity : int
+        verbosity of the message
+    message : :obj:`str`
+        message
 
     """
     if(SCREEN_VERBOSE_LEVEL>=verbosity):
@@ -143,22 +150,25 @@ def PrintDiagnostic(verbosity, message):
         sys.stdout.write(FONT_GREY+message+FONT_NORMAL+"\n")
 
 def PrintValue(name, value):
-    """Prints the value of a variable to screen
+    """Prints the value of a variable to screen.
 
     Parameters
     ----------
-    name (string) : name of variable to be printed
-    value (string) : value of variable to be printed
+    name : :obj:`str`
+        name of variable to be printed
+    value : :obj:`str`
+        value of variable to be printed
 
     """
     PrintDiagnostic(DEBUG_VERBOSITY, "{}={}".format(name,value))
 
 def PrintCommandLine(message):
-    """Prints a bash command line to screen
+    """Prints a bash command line to screen.
 
     Parameters
     ----------
-    message (string) : message
+    message : :obj:`str`
+        message
 
     """
     if(SCREEN_VERBOSE_LEVEL>=COMMAND_VERBOSITY):
@@ -167,11 +177,12 @@ def PrintCommandLine(message):
         sys.stdout.write(FONT_YELLOW+message+FONT_NORMAL+"\n")
 
 def PrintPythonCommand():
-    """Prints a python command to screen
+    """Prints a python command to screen.
 
     Parameters
     ----------
-    message (string) : message
+    message : :obj:`str`
+        message
 
     """
     from sys import argv
@@ -183,11 +194,12 @@ def PrintPythonCommand():
     PrintCommandLine(message)
 
 def ExecuteBashCommand(commandString):
-    """Prints and executes a bash command
+    """Prints and executes a bash command.
 
     Parameters
     ----------
-    commandString (string) : command line
+    commandString : :obj:`str`
+        command line
 
     """
     from os import system
@@ -195,26 +207,29 @@ def ExecuteBashCommand(commandString):
     system(commandString)
 
 def ExecuteBashCommandMute(commandString):
-    """Executes a bash command without printing it
+    """Executes a bash command without printing it.
 
     Parameters
     ----------
-    commandString (string) : command line
+    commandString : :obj:`str`
+        command line
 
     """
     from os import system
     system(commandString)
 
 def ExecuteBashCommandOutput(commandString):
-    """Prints and executes a bash command, returns the output
+    """Prints and executes a bash command, returns the output.
 
     Parameters
     ----------
-    commandString (string) : command line
+    commandString : :obj:`str`
+        command line
 
     Returns
     -------
-    output : the result of subprocess.check_output
+    output : :obj:`str`
+        the result of subprocess.check_output
 
     """
     from subprocess import check_output
@@ -222,11 +237,12 @@ def ExecuteBashCommandOutput(commandString):
     return check_output(commandString.split(" "), universal_newlines=True)
 
 def PrintWarning(message):
-    """Prints a warning to screen
+    """Prints a warning to screen.
 
     Parameters
     ----------
-    message (string) : message
+    message : :obj:`str`
+        message
 
     """
     if(SCREEN_VERBOSE_LEVEL>=WARNING_VERBOSITY):
@@ -235,11 +251,12 @@ def PrintWarning(message):
         sys.stdout.write(FONT_ORANGE+message+FONT_NORMAL+"\n")
 
 def PrintError(message):
-    """Prints an error to screen
+    """Prints an error to screen.
 
     Parameters
     ----------
-    message (string) : message
+    message : :obj:`str`
+        message
 
     """
     if(SCREEN_VERBOSE_LEVEL>=ERROR_VERBOSITY):
@@ -248,11 +265,12 @@ def PrintError(message):
         sys.stdout.write(FONT_LIGHTRED+message+FONT_NORMAL+"\n")
 
 def FatalError(message):
-    """Prints an error to screen and ends the script
+    """Prints an error to screen and ends the script.
 
     Parameters
     ----------
-    message (string) : message
+    message : :obj:`str`
+        message
 
     """
     import sys
@@ -260,8 +278,7 @@ def FatalError(message):
     sys.exit()
 
 def p_load(file, mmap_mode=None, allow_pickle=True, fix_imports=True, encoding='ASCII'):
-    """Load arrays or pickled objects from ``.npy``, ``.npz`` or pickled files.
-    (Replacement of numpy.load, see its documentation)
+    """Loads arrays or pickled objects from ``.npy``, ``.npz`` or pickled files. (Replacement of numpy.load, see its documentation).
     """
     import numpy as np
     PrintMessage(3, "Loading array from file '{}'...".format(file))
@@ -270,10 +287,7 @@ def p_load(file, mmap_mode=None, allow_pickle=True, fix_imports=True, encoding='
     return arr
 
 def p_loadtxt(file, dtype=None, comments='#', delimiter=None, converters=None, skiprows=0, usecols=None, unpack=True, ndmin=0, encoding='bytes'):
-    """Load data from a text file.
-    Each row in the text file must have the same number of values.
-    (Replacement of numpy.loadtxt, see its documentation)
-    Warning: contrary to numpy.loadtxt, unpack is set to True by default
+    """Loads data from a text file. Each row in the text file must have the same number of values. (Replacement of numpy.loadtxt, see its documentation). WARNING: contrary to numpy.loadtxt, unpack is set to True by default.
     """
     import numpy as np
     dtype=dtype or np.float
@@ -283,8 +297,7 @@ def p_loadtxt(file, dtype=None, comments='#', delimiter=None, converters=None, s
     return arr
 
 def p_save(file, arr, allow_pickle=True, fix_imports=True):
-    """Save an array to a binary file in NumPy ``.npy`` format.
-    (Replacement of numpy.save, see its documentation)
+    """Saves an array to a binary file in NumPy ``.npy`` format. (Replacement of numpy.save, see its documentation).
     """
     import numpy as np
     file = file.replace(".npy", "")
@@ -293,8 +306,7 @@ def p_save(file, arr, allow_pickle=True, fix_imports=True):
     PrintMessage(3, "Saving array to file '{}.npy' done.".format(file))
     
 def p_savez(file,*args,**kwds):
-    """Save several arrays into a single file in uncompressed ``.npz`` format.
-    (Replacement of numpy.savez, see its documentation)
+    """Saves several arrays into a single file in uncompressed ``.npz`` format. (Replacement of numpy.savez, see its documentation).
     """
     import numpy as np
     file = file.replace(".npz", "")
@@ -303,8 +315,7 @@ def p_savez(file,*args,**kwds):
     PrintMessage(3, "Saving arrays to file '{}.npz' done.".format(file))
     
 def p_savetxt(file, X, fmt='%.18e', delimiter=' ', newline='\n', header='', footer='', comments='# ', encoding=None):
-    """Save an array to a text file.
-    (Replacement of numpy.savetxt, see its documentation)
+    """Saves an array to a text file. (Replacement of numpy.savetxt, see its documentation).
     """
     import numpy as np
     PrintMessage(3, "Saving array to file '{}'...".format(file))
@@ -312,16 +323,20 @@ def p_savetxt(file, X, fmt='%.18e', delimiter=' ', newline='\n', header='', foot
     PrintMessage(3, "Saving array to file '{}' done.".format(file))
     
 def save_replace_dataset(hf, address, data, maxshape, dtype):
-    """Save of replace a dataset in a hdf5 file
-    The dataset must be resizable (see the HDF5 manual)
+    """Saves or replaces a dataset in a hdf5 file. The dataset must be resizable (see the HDF5 manual).
 
     Parameters
     ----------
-    hf (h5py.File) : hdf5 file (already opened with writing permission)
-    address (string) : address of the dataset to be written/replaced
-    data (array) : data to be saved
-    maxshape (array or None) : maximum size of the array
-    dtype (array) : data type
+    hf : :obj:`h5py.File`
+        hdf5 file (already opened with writing permission)
+    address : :obj:`str`
+        address of the dataset to be written/replaced
+    data : array
+        data to be saved
+    maxshape : array or None
+        maximum size of the array
+    dtype : array
+        data type
 
     """
     if address in hf:
@@ -332,14 +347,18 @@ def save_replace_dataset(hf, address, data, maxshape, dtype):
         hf.create_dataset(address, data=data, maxshape=maxshape, dtype=dtype)
 
 def save_replace_attr(hf, address, attr, dtype):
-    """Save or replace an attribute in a hdf5 file
+    """Saves or replaces an attribute in a hdf5 file.
 
     Parameters
     ----------
-    hf (h5py.File) : hdf5 file (already opened with writing permission)
-    address (string) : address of the attribute to be written/replaced
-    attr (array) : attribute to be saved
-    dtype (array) : data type
+    hf : :obj:`h5py.File`
+        hdf5 file (already opened with writing permission)
+    address : :obj:`str`
+        address of the attribute to be written/replaced
+    attr : array
+        attribute to be saved
+    dtype : array
+        data type
 
     """
     if address in hf.attrs:
@@ -348,18 +367,22 @@ def save_replace_attr(hf, address, attr, dtype):
         hf.attrs.create(address, attr, dtype=dtype)
 
 def get_indices(Id, N0, N1=None, N2=None):
-    """Gets 3D indices from 1D index
-    Assumes row-major ordering
+    """Gets 3D indices from 1D index. Assumes row-major ordering.
 
     Parameters
     ----------
-    Id (int) : 1D index
-    N0 (int) : size of the array x
-    N1 (optional, int, default=N0) : size of the array y
-    N2 (optional, int, default=N0) : size of the array z
+    Id : int
+        1D index
+    N0 : int
+        size of the array x
+    N1 : int, optional, default=N0
+        size of the array y
+    N2 : int, optional, default=N0
+        size of the array z
 
     Returns
-    (i,j,k) (array, int, dimension=3) : corresponding 3D indices
+    (i,j,k) : array, int, dimension=3
+        corresponding 3D indices
 
     """
     N1=N1 or N0
@@ -370,43 +393,48 @@ def get_indices(Id, N0, N1=None, N2=None):
     return (i,j,k)
 
 def get_index(i,j,k,N1,N2=None,N0=None):
-    """Gets 1D index from 3D indices
-    Assumes row-major ordering
-    Warning: N0 is passed last when all of N0,N1,N2 are specified!
+    """Gets 1D index from 3D indices. Assumes row-major ordering. WARNING: N0 is passed last when all of N0,N1,N2 are specified!
 
     Parameters
     ----------
-    i (int) : 3D index x
-    j (int) : 3D index y
-    k (int) : 3D index z
-    N1 (int) : size of the array y
-    N2 (optional, int, default=N1) : size of the array z
-    N0 (optional, int, default=N1) : size of the array x
+    i : int
+        3D index x
+    j : int
+        3D index y
+    k : int
+        3D index z
+    N1 : int
+        size of the array y
+    N2 : int, optional, default=N1
+        size of the array z
+    N0 : int, optional, default=N1
+        size of the array x
 
     Returns
     -------
-    Id (int) : corresponding 1D index
+    Id : int
+        corresponding 1D index
 
     """
     N2=N2 or N1
     return k+N2*(j+N1*i);
 
 def regular_inv(A, EPS_A=1e-7, EPS_residual=1e-3):
-    """Computes the inverse of a matrix
-    Attempts a regularization by adding an epsilon to the diagonal,
-    if the matrix is ill-conditioned
+    """Computes the inverse of a matrix. Attempts a regularization by adding an epsilon to the diagonal, if the matrix is ill-conditioned.
 
     Parameters
     ----------
-    A (array-like, square) : input matrix
-    EPS_A (optional, double, default=1e-7) : epsilon to be added to
-        the diagonal of A, if necessary
-    EPS_residual (optional, double, default=1e-3) : maximum residual
-        in A*A^{-1} before attempting regularization
+    A : array-like, square
+        input matrix
+    EPS_A : double, optional, default=1e-7
+        epsilon to be added to the diagonal of A, if necessary
+    EPS_residual : double, optional, default=1e-3
+        maximum residual in A*A^{-1} before attempting regularization
 
     Returns
     -------
-    A^{-1} : numerical inverse of A
+    A^{-1} : array-like, square
+        numerical inverse of A
 
     """
     import numpy as np

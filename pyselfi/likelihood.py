@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #-------------------------------------------------------------------------------------
-# pySELFI v1.0 -- pyselfi/likelihood.py
+# pySELFI v1.1 -- pyselfi/likelihood.py
 # Copyright (C) 2019-2019 Florent Leclercq.
 # 
 # This file is part of the pySELFI distribution
@@ -18,33 +18,39 @@
 # The text of the license is located in the root directory of the source package.
 #-------------------------------------------------------------------------------------
 
-"""Routines related to the SELFI likelihood
+"""Routines related to the SELFI effective likelihood.
+
+.. _Leclercqetal2019: https://arxiv.org/abs/1902.10149
+
+.. |Leclercqetal2019| replace:: Leclercq *et al*. (2019)
 """
 
 __author__  = "Florent Leclercq"
-__version__ = "1.0"
+__version__ = "1.1"
 __date__    = "2018-2019"
 __license__ = "GPLv3"
 
 class likelihood(object):
-    """This class represents the SELFI likelihood
-    See equations (11)-(15) and (17)-(18) in Leclercq et al. 2019
-    for expressions
+    """This class represents the SELFI likelihood. See equations (11)-(15) and (17)-(18) in |Leclercqetal2019|_ for expressions.
+
+    Attributes
+    ----------
+    blackbox : :obj:`blackbox`
+        the blackbox simulator, defined as explained in the `SELFI documentation <../usage/new_blackbox.html>`__
+    theta_0 : array, double, dimension=S
+        expansion point in parameter space
+    Ne : int
+        number of simulations at the expansion point, to compute the covariance matrix.
+    Ns : int
+        number of simulations per expansion direction in parameter space. (Ne may be larger than Ns, in which case only the first Ns simulations at the expansion point are used to compute the gradient)
+    Delta_theta : double
+        step size for finite differencing to compute the blackbox gradient in parameter space
+
     """
     
     # Initialization
     def __init__(self,blackbox,theta_0,Ne,Ns,Delta_theta):
-        """Initializes a likelihood object
-
-        Parameters
-        ----------
-        blackbox (blackbox) : the blackbox simulator, defined as explained in the
-            SELFI documentation
-        theta_0 (array, double, dimension=S) : expansion point in parameter space
-        Ne (int) : number of simulations at the expansion point, to compute the covariance matrix.
-        Ns (int) : number of simulations per expansion direction in parameter space. (Ne may be larger than Ns, in which case only the first Ns simulations at the expansion point are used to compute the gradient)
-        Delta_theta (double) : step size for finite differencing to compute the blackbox gradient in parameter space
-
+        """Initializes a likelihood object.
         """
         self.blackbox=blackbox
         self.theta_0=theta_0
@@ -56,19 +62,20 @@ class likelihood(object):
         self.EPS_Sigma=1e-7
         self.EPS_residual=1e-3
 
-    def get_perturb_theta(self,d,h):
-        """Computes the perturbed theta = theta_0 + Delta_theta
-        See equation (18) in Leclercq et al. 2019
+    def _get_perturb_theta(self,d,h):
+        """Computes the perturbed theta = theta_0 + Delta_theta. See equation (18) in |Leclercqetal2019|_.
 
         Parameters
         ----------
-        d (int) : index giving the direction in parameter space, from 0 to S
-        h (double) : step size in parameter space
+        d : int
+            index giving the direction in parameter space, from 0 to S
+        h : double
+            step size in parameter space
 
         Returns
         -------
-        theta (double) : theta_0 if d=0, or theta_0 + Delta_theta
-            if d is from 1 to S
+        theta : double
+            theta_0 if d=0, or theta_0 + Delta_theta if d is from 1 to S
 
         """
         import numpy as np
@@ -80,38 +87,40 @@ class likelihood(object):
             Delta_theta[d-1] = h
             return theta_0 + Delta_theta
 
-    def compute_Phi_d(self,pool_fname,d,N=None,h=None):
-        """Computes a pool of blackbox simulations at one of the
-        required points in parameter space
+    def _compute_Phi_d(self,pool_fname,d,N=None,h=None):
+        """Computes a pool of blackbox simulations at one of the required points in parameter space.
 
         Parameters
         ----------
-        pool_fname (string) : filename of the pool
-        d (int) : direction in parameter space, from 0 to S
-        N (optional, int, default=class value for Ne if d=0 or Ns otherwise) : number of simulations per expansion direction in parameter space
-        h (optional, double, default=class value) : step size for finite differencing to compute the blackbox gradient in parameter space
+        pool_fname : :obj:`str`
+            filename of the pool
+        d : int
+            direction in parameter space, from 0 to S
+        N : int, optional, default=class value for Ne if d=0, or Ns otherwise
+            number of simulations per expansion direction in parameter space
+        h : double, optional, default=class value
+            step size for finite differencing to compute the blackbox gradient in parameter space
 
         """
         N=N or (self.Ne if d is 0 else self.Ns)
         h=h or self.Delta_theta
-        theta_d = self.get_perturb_theta(d,h)
+        theta_d = self._get_perturb_theta(d,h)
         Phi_d = self.blackbox.compute_pool(theta_d, d, pool_fname, N)
         setattr(self, 'Phi_'+str(d), Phi_d)
         
     @classmethod
-    def covariance(cls,Phi):
-        """Returns the estimated covariance of a set of summaries,
-        with the prefactor for a virtual signal field
-        See equations (13)-(14) in Leclercq et al. 2019
+    def _covariance(cls,Phi):
+        """Returns the estimated covariance of a set of summaries, with the prefactor for a virtual signal field. See equations (13)-(14) in |Leclercqetal2019|_.
 
         Parameters
         ----------
-        Phi (array, double, dimension=(N,P)) : a set of N simulations
+        Phi : array, double, dimension=(N,P)
+            a set of N simulations
 
         Returns
         -------
-        Sigma^hat_theta' (array, double, dimension=(P,P)) : (N+1)/N * Sigma^hat_theta
-            where Sigma^hat_theta is the unbiased covariance estimator
+        Sigma^hat_theta' : array, double, dimension=(P,P)
+            (N+1)/N * Sigma^hat_theta where Sigma^hat_theta is the unbiased covariance estimator
 
         """
         import numpy as np
@@ -124,33 +133,31 @@ class likelihood(object):
         return covariance_prefactor * np.cov(Phi.T,ddof=1).astype(c_double)
     
     def compute_C_0(self):
-        """Computes the estimated covariance of a set of summaries at the
-        expansion point, C_0, and log|2piC_0|. Assumes that Phi_0 has
-        already been computed
+        """Computes the estimated covariance of a set of summaries at the expansion point, C_0, and log|2piC_0|. Assumes that Phi_0 has already been computed.
         """
         import numpy as np
-        self.C_0 = self.covariance(self.Phi_0.Phi)
+        self.C_0 = self._covariance(self.Phi_0.Phi)
         self.logdet2piC_0 = np.linalg.slogdet(2*np.pi*self.C_0)[1]
     
     @classmethod
-    def inverse_covariance(cls,Phi,covariance,EPS_Sigma=1e-7,EPS_residual=1e-3):
-        """Computes the unbiased inverse of an estimated covariance matrix,
-        using the Hartlap, Simon & Schneider (2007) correction factor
-        See equations (13) and (15) in Leclercq et al. 2019
+    def _inverse_covariance(cls,Phi,covariance,EPS_Sigma=1e-7,EPS_residual=1e-3):
+        """Computes the unbiased inverse of an estimated covariance matrix, using the `Hartlap, Simon & Schneider (2007) <https://arxiv.org/abs/astro-ph/0608064>`__ correction factor. See equations (13) and (15) in |Leclercqetal2019|_.
 
         Parameters
         ----------
-        Phi (array, double, dimension=(N,P)) : a set of N simulations
-        covariance (array, double, dimension=(P,P)) : estimated covariance matrix
-        EPS_Sigma (optional, double, default=1e-7) : epsilon to be added to
-            the diagonal of the covariance matrix, if necessary
-        EPS_residual (optional, double, default=1e-3) : maximum residual
-            in covariance*covariance^{-1} before attempting regularization
+        Phi : array, double, dimension=(N,P)
+            a set of N simulations
+        covariance : array, double, dimension=(P,P)
+            estimated covariance matrix
+        EPS_Sigma : double, optional, default=1e-7
+            epsilon to be added to the diagonal of the covariance matrix, if necessary
+        EPS_residual : double, optional, default=1e-3
+            maximum residual in covariance*covariance^{-1} before attempting regularization
 
         Returns
         -------
-        Sigma^hat_theta^{-1}' (array, double, dimension=(P,P)) : alpha*(Sigma^hat_theta')^{-1}
-        where (Sigma^hat_theta')^{-1} is the inverse sample covariance
+        Sigma^hat_theta^{-1}' : array, double, dimension=(P,P)
+            alpha*(Sigma^hat_theta')^{-1} where (Sigma^hat_theta')^{-1} is the inverse sample covariance
 
         """
         from pyselfi.utils import regular_inv
@@ -165,64 +172,68 @@ class likelihood(object):
         return alpha*inv_covariance
     
     def compute_inv_C_0(self):
-        """Computes the estimated inverse covariance of a set of summaries at the
-        expansion point, inv_C_0. Assumes that Phi_0 has already been computed
+        """Computes the estimated inverse covariance of a set of summaries at the expansion point, inv_C_0. Assumes that Phi_0 has already been computed.
         """
-        self.inv_C_0 = self.inverse_covariance(self.Phi_0.Phi, self.C_0, self.EPS_Sigma, self.EPS_residual)
+        self.inv_C_0 = self._inverse_covariance(self.Phi_0.Phi, self.C_0, self.EPS_Sigma, self.EPS_residual)
     
     @classmethod
-    def average(cls,Phi,N):
-        """Returns the average of the first N of a set of summaries
+    def _average(cls,Phi,N):
+        """Returns the average of the first N of a set of summaries.
 
         Parameters
         ----------
-        Phi (array, double, dimension=(NN,P)) : a set of NN simulations
-        N (int) : take the average of the first N simulations
+        Phi : array, double, dimension=(NN,P)
+            a set of NN simulations
+        N : int
+            take the average of the first N simulations
 
         """
         import numpy as np
         return np.mean(Phi[:N],axis=0)
     
-    def compute_f_d(self,d,Ns):
-        """Computes the average blackbox at one of the required points
-        in parameter space. Assumes Phi_d has already been computed
+    def _compute_f_d(self,d,Ns):
+        """Computes the average blackbox at one of the required points in parameter space. Assumes Phi_d has already been computed.
 
         Parameters
         ----------
-        d (int) : direction in parameter space, from 0 to S
-        Ns (int) : number of simulations to be used
+        d : int
+            direction in parameter space, from 0 to S
+        Ns : int
+            number of simulations to be used
 
         """
-        f_d = self.average(getattr(self, 'Phi_'+str(d)).Phi, Ns)
+        f_d = self._average(getattr(self, 'Phi_'+str(d)).Phi, Ns)
         setattr(self, 'f_'+str(d), f_d)
     
-    def compute_grad_d(self,d,h):
-        """Computes the gradient in one direction of parameter space
-        See equation (18) in Leclercq et al. 2019
-        Assumes that f_0 and f_d have already been computed
+    def _compute_grad_d(self,d,h):
+        """Computes the gradient in one direction of parameter space, see equation (18) in |Leclercqetal2019|_. Assumes that f_0 and f_d have already been computed.
 
         Parameters
         ----------
-        d (int) : direction in parameter space, from 1 to S
-        h (double) : step size for finite differencing
+        d : int
+            direction in parameter space, from 1 to S
+        h : double
+            step size for finite differencing
 
         """
         f_0 = self.f_0
         f_d = getattr(self, 'f_'+str(d))
         return (f_d-f_0)/h
     
-    def gradient(self,Ns=None,h=None):
-        """Returns the gradient of the linearised blackbox
+    def _gradient(self,Ns=None,h=None):
+        """Returns the gradient of the linearised blackbox.
 
         Parameters
         ----------
-        Ns (optional, int, default=class value) : number of simulations per expansion direction in parameter space
-        h (optional, double, default=class value) : step size for finite differencing to compute the blackbox gradient in parameter space
+        Ns : int, optional, default=class value
+            number of simulations per expansion direction in parameter space
+        h : double, optional, default=class value
+            step size for finite differencing to compute the blackbox gradient in parameter space
 
         Returns
         -------
-        grad_f (array, double, dimension=(P,S)) : gradient of the
-            linearised blackbox
+        grad_f : array, double, dimension=(P,S)
+            gradient of the linearised blackbox
 
         """
         import numpy as np
@@ -234,56 +245,63 @@ class likelihood(object):
         
         # Compute the average blackbox along all directions
         for d in range(self.S+1):
-            self.compute_f_d(d,Ns)
+            self._compute_f_d(d,Ns)
 
         # Evaluate the gradients along all directions
         for d in range(1,self.S+1):
-            grad_f[d-1] = self.compute_grad_d(d,h)
+            grad_f[d-1] = self._compute_grad_d(d,h)
         
         grad_f = grad_f.T
         return grad_f
     
     def compute_gradient(self,Ns=None,h=None):
-        """Computes the gradient of the linearised blackbox
+        """Computes the gradient of the linearised blackbox.
 
         Parameters
         ----------
-        Ns (optional, int, default=class value) : number of simulations per expansion direction in parameter space
-        h (optional, double, default=class value) : step size for finite differencing to compute the blackbox gradient in parameter space
+        Ns : int, optional, default=class value
+            number of simulations per expansion direction in parameter space
+        h : double, optional, default=class value
+            step size for finite differencing to compute the blackbox gradient in parameter space
 
         """        
-        self.grad_f = self.gradient(Ns,h)
+        self.grad_f = self._gradient(Ns,h)
     
     def run_simulations(self, pool_prefix, pool_suffix, Ne=None, Ns=None, h=None):
-        """Runs all the necessary simulations to compute the likelihood.
-        This amounts to Ne + Ns*S blackbox evaluations
+        """Runs all the necessary simulations to compute the likelihood. This amounts to Ne + Ns*S blackbox evaluations.
 
         Parameters
         ----------
-        pool_prefix (string) : address and prefix of the filenames for simulation pools
-        pool_suffix (string) : suffix of the filenames for simulation pools
-        Ne (optional, int, default=class value) : number of simulations at the expansion point, to compute the covariance matrix
-        Ns (optional, int, default=class value) : number of simulations per expansion direction in parameter space. (Ne may be larger than Ns, in which case only the first Ns simulations at the expansion point are used to compute the gradient)
-        h (optional, double, default=class value) : step size for finite differencing to compute the blackbox gradient in parameter space
+        pool_prefix : :obj:`str`
+            address and prefix of the filenames for simulation pools
+        pool_suffix : :obj:`str`
+            suffix of the filenames for simulation pools
+        Ne : int, optional, default=class value
+            number of simulations at the expansion point, to compute the covariance matrix
+        Ns : int, optional, default=class value
+            number of simulations per expansion direction in parameter space. (Ne may be larger than Ns, in which case only the first Ns simulations at the expansion point are used to compute the gradient)
+        h : double, optional, default=class value
+            step size for finite differencing to compute the blackbox gradient in parameter space
 
         """
         # run simulations at the expansion point
         pool_fname=pool_prefix+"0"+pool_suffix
-        self.compute_Phi_d(pool_fname, 0, Ne, h)
+        self._compute_Phi_d(pool_fname, 0, Ne, h)
         
         # run simulations along all directions
         for d in range(1,self.S+1):
             pool_fname=pool_prefix+str(d)+pool_suffix
-            self.compute_Phi_d(pool_fname, d, Ns, h)
+            self._compute_Phi_d(pool_fname, d, Ns, h)
     
     def compute(self,Ns=None,h=None):
-        """Computes all the necessary quantities to characterize the likelihood
-        (estimated covariance matrix, its inverse, and the gradient)
+        """Computes all the necessary quantities to characterize the likelihood (estimated covariance matrix, its inverse, and the gradient).
 
         Parameters
         ----------
-        Ns (optional, int, default=class value) : number of simulations per expansion direction in parameter space
-        h (optional, double, default=class value) : step size for finite differencing to compute the blackbox gradient in parameter space
+        Ns : int, optional, default=class value
+            number of simulations per expansion direction in parameter space
+        h : double, optional, default=class value
+            step size for finite differencing to compute the blackbox gradient in parameter space
 
         """
         self.compute_C_0()
@@ -291,12 +309,12 @@ class likelihood(object):
         self.compute_gradient(Ns,h)
     
     def data_model(self,theta):
-        """Evaluates the linearised data model at a given point in parameter space
-        See equation (17) in Leclercq et al. 2019
+        """Evaluates the linearised data model at a given point in parameter space, see equation (17) in |Leclercqetal2019|_.
 
         Parameters
         ----------
-        theta (array, double, dimension=S) : evaluation point in parameter space
+        theta : array, double, dimension=S
+            evaluation point in parameter space
 
         """
         f_0 = self.f_0
@@ -306,17 +324,19 @@ class likelihood(object):
         return f_theta
     
     def logpdf(self,theta,phi_obs):
-        """Returns the log likelihood probability at a given point in parameter space
-        (equation (19) in Leclercq et al. 2019)
+        """Returns the log likelihood probability at a given point in parameter space, see equation (19) in |Leclercqetal2019|_.
 
         Parameters
         ----------
-        theta (array, double, dimension=S) : evaluation point in parameter space
-        phi_obs (array, double, dimension=P) : observed summaries vector
+        theta : array, double, dimension=S
+            evaluation point in parameter space
+        phi_obs : array, double, dimension=P
+            observed summaries vector
 
         Returns
         -------
-        logpdf (double) : log likelihood probability
+        logpdf : double
+            log likelihood probability
 
         """
         phi_pred = self.data_model(theta)
@@ -326,11 +346,12 @@ class likelihood(object):
         return -diff.dot(inv_C_0).dot(diff)/2. - logdet2piC_0/2.
     
     def save(self,fname):
-        """Saves the likelihood to an output file
+        """Saves the likelihood to an output file.
 
         Parameters
         ----------
-        fname (string) : output filename
+        fname : :obj:`str`
+            output filename
 
         """
         import h5py as h5
@@ -349,11 +370,12 @@ class likelihood(object):
         PrintMessage(3, "Writing likelihood in data file '{}' done.".format(fname))
     
     def load(self,fname):
-        """Loads the likelihood from an input file
+        """Loads the likelihood from an input file.
 
         Parameters
         ----------
-        fname (string) : input filename
+        fname : :obj:`str`
+            input filename
 
         """
         import numpy as np
