@@ -6,7 +6,7 @@
 .. |GitHub version| image:: https://img.shields.io/github/tag/florent-leclercq/pyselfi.svg?label=version
    :target: https://github.com/florent-leclercq/pyselfi
 
-.. |GitHub commits| image:: https://img.shields.io/github/commits-since/florent-leclercq/pyselfi/v1.0.svg
+.. |GitHub commits| image:: https://img.shields.io/github/commits-since/florent-leclercq/pyselfi/v1.1.svg
    :target: https://github.com/florent-leclercq/pyselfi/commits
 
 .. |DOI| image:: https://zenodo.org/badge/197575311.svg
