@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #-------------------------------------------------------------------------------------
-# pySELFI v1.1 -- setup.py
+# pySELFI v1.2 -- setup.py
 # Copyright (C) 2019-2019 Florent Leclercq.
 # 
 # This file is part of the pySELFI distribution
@@ -22,7 +22,7 @@
 """
 
 __author__  = "Florent Leclercq"
-__version__ = "1.1"
+__version__ = "1.2"
 __date__    = "2018-2019"
 __license__ = "GPLv3"
 
@@ -44,7 +44,7 @@ optionals = {'doc': ['Sphinx']}
 # Setup
 setuptools.setup(
     name="pyselfi",
-    version="1.1",
+    version="1.2",
     author="Florent Leclercq",
     author_email="florent.leclercq@polytechnique.org",
     description="A python implementation of the Simulator Expansion for Likelihood-Free Inference (SELFI) algorithm",

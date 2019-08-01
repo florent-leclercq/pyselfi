@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #-------------------------------------------------------------------------------------
-# pySELFI v1.1 -- pyselfi_examples/grf/model/blackbox_GRF.py
+# pySELFI v1.2 -- pyselfi_examples/grf/model/blackbox_GRF.py
 # Copyright (C) 2019-2019 Florent Leclercq.
 # 
 # This file is part of the pySELFI distribution
@@ -22,7 +22,7 @@
 """
 
 __author__  = "Florent Leclercq"
-__version__ = "1.1"
+__version__ = "1.2"
 __date__    = "2018-2019"
 __license__ = "GPLv3"
 
@@ -98,8 +98,8 @@ class blackbox(object):
             power spectrum object
 
         """
-        from power import PowerSpectrum
         from os.path import exists
+        from pysbmy.power import PowerSpectrum
         if exists(fname_powerspectrum) and not force:
             P=PowerSpectrum.read(fname_powerspectrum)
         else:
@@ -123,9 +123,9 @@ class blackbox(object):
             power spectrum object
 
         """
-        from power import PowerSpectrum
-        from scipy.interpolate import InterpolatedUnivariateSpline
         from os.path import exists
+        from scipy.interpolate import InterpolatedUnivariateSpline
+        from pysbmy.power import PowerSpectrum
         G_sim=self.G_sim
         P=self.theta2P(theta)
         Spline=InterpolatedUnivariateSpline(self.k_s, P, k=5)
@@ -155,8 +155,8 @@ class blackbox(object):
         import numpy as np
         import scipy.stats as ss
         from pysbmy import c_double, c_float_t
-        from field import Field
-        from correlations import get_autocorrelation
+        from pysbmy.field import Field
+        from pysbmy.correlations import get_autocorrelation
         
         G_sim=self.G_sim
         P_ss=self.P_ss

@@ -2,7 +2,7 @@
 
 [![arXiv](https://img.shields.io/badge/astro--ph.CO-arxiv%3A1902.10149-B31B1B.svg?style=flat)](https://arxiv.org/abs/1902.10149)
 [![GitHub version](https://img.shields.io/github/tag/florent-leclercq/pyselfi.svg?label=version)](https://github.com/florent-leclercq/pyselfi)
-[![GitHub commits](https://img.shields.io/github/commits-since/florent-leclercq/pyselfi/v1.1.svg)](https://github.com/florent-leclercq/pyselfi/commits)
+[![GitHub commits](https://img.shields.io/github/commits-since/florent-leclercq/pyselfi/v1.2.svg)](https://github.com/florent-leclercq/pyselfi/commits)
 [![DOI](https://zenodo.org/badge/197575311.svg)](https://zenodo.org/badge/latestdoi/197575311)
 [![GPLv3 license](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://github.com/florent-leclercq/pyselfi/blob/master/LICENSE)
 [![PyPI version](https://badge.fury.io/py/pyselfi.svg)](https://badge.fury.io/py/pyselfi)

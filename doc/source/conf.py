@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #-------------------------------------------------------------------------------------
-# pySELFI v1.1 -- doc/source/conf.py
+# pySELFI v1.2 -- doc/source/conf.py
 # Copyright (C) 2019-2019 Florent Leclercq.
 # 
 # This file is part of the pySELFI distribution
@@ -50,7 +50,7 @@ copyright = '2018-2019, Florent Leclercq'
 author = 'Florent Leclercq'
 
 # The full version, including alpha/beta/rc tags
-release = '1.1'
+release = '1.2'
 
 # -- General configuration ---------------------------------------------------
 

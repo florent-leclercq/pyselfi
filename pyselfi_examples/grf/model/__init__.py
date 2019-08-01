@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #-------------------------------------------------------------------------------------
-# pySELFI v1.1 -- pyselfi_examples/grf/model/__init__.py
+# pySELFI v1.2 -- pyselfi_examples/grf/model/__init__.py
 # Copyright (C) 2019-2019 Florent Leclercq.
 # 
 # This file is part of the pySELFI distribution
@@ -23,5 +23,5 @@
 
 __author__  = "Florent Leclercq"
 __date__    = "2018-2019"
-__version__ = "1.1"
+__version__ = "1.2"
 __license__ = "GPLv3"
