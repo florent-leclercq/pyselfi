@@ -26,21 +26,23 @@ To acknowledge the use of pySELFI in research papers, please cite its [doi:10.52
 
 *Primordial power spectrum and cosmology from black-box galaxy surveys*<br/>
 F. Leclercq, W. Enzi, J. Jasche, A. Heavens<br/>
-<a href="http://arxiv.org/abs/1902.10149" target="blank">arXiv:1902.10149</a> [<a href="http://arxiv.org/abs/1902.10149" target="blank">astro-ph.CO</a>] [<a href="https://ui.adsabs.harvard.edu/?#abs/2019arXiv190210149L" target="blank">ADS</a>] [<a href="http://arxiv.org/pdf/1902.10149" class="document" target="blank">pdf</a>]
+<a href="http://dx.doi.org/10.1093/mnras/stz2718" target="blank">MNRAS <b>490</b>, 4237 (2019)</a>, <a href="http://arxiv.org/abs/1902.10149" target="blank">arXiv:1902.10149</a> [<a href="http://arxiv.org/abs/1902.10149" target="blank">astro-ph.CO</a>] [<a href="https://ui.adsabs.harvard.edu/?#abs/2019MNRAS.490.4237L" target="blank">ADS</a>] [<a href="http://arxiv.org/pdf/1902.10149" class="document" target="blank">pdf</a>]
 
     @ARTICLE{pySELFI,
         author = {{Leclercq}, Florent and {Enzi}, Wolfgang and {Jasche}, Jens and {Heavens}, Alan},
         title = "{Primordial power spectrum and cosmology from black-box galaxy surveys}",
-        journal = {arXiv e-prints},
-        keywords = {Astrophysics - Cosmology and Nongalactic Astrophysics, Astrophysics - Instrumentation and Methods for Astrophysics},
+        journal = {\mnras},
+        keywords = {methods: statistical, cosmological parameters, large-scale structure of Universe, Astrophysics - Cosmology and Nongalactic Astrophysics, Astrophysics - Instrumentation and Methods for Astrophysics},
         year = "2019",
-        month = "Feb",
-        eid = {arXiv:1902.10149},
-        pages = {arXiv:1902.10149},
+        month = "Dec",
+        volume = {490},
+        number = {3},
+        pages = {4237-4253},
+        doi = {10.1093/mnras/stz2718},
         archivePrefix = {arXiv},
         eprint = {1902.10149},
         primaryClass = {astro-ph.CO},
-        adsurl = {https://ui.adsabs.harvard.edu/abs/2019arXiv190210149L},
+        adsurl = {https://ui.adsabs.harvard.edu/abs/2019MNRAS.490.4237L},
         adsnote = {Provided by the SAO/NASA Astrophysics Data System}
         }
 
