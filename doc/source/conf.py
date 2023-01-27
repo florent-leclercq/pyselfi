@@ -1,20 +1,20 @@
 #!/usr/bin/env python
 #-------------------------------------------------------------------------------------
-# pySELFI v1.2 -- doc/source/conf.py
-# Copyright (C) 2019-2019 Florent Leclercq.
-# 
+# pySELFI v2.0 -- doc/source/conf.py
+# Copyright (C) 2019-2023 Florent Leclercq.
+#
 # This file is part of the pySELFI distribution
 # (https://github.com/florent-leclercq/pyselfi/)
-# 
-# This program is free software: you can redistribute it and/or modify  
-# it under the terms of the GNU General Public License as published by  
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, version 3.
-# 
-# This program is distributed in the hope that it will be useful, but 
-# WITHOUT ANY WARRANTY; without even the implied warranty of 
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 # General Public License for more details.
-# 
+#
 # The text of the license is located in the root directory of the source package.
 #-------------------------------------------------------------------------------------
 
@@ -46,11 +46,11 @@ sys.path.insert(0, project_root)
 # -- Project information -----------------------------------------------------
 
 project = 'pySELFI'
-copyright = '2018-2019, Florent Leclercq'
+copyright = '2018-2023, Florent Leclercq'
 author = 'Florent Leclercq'
 
 # The full version, including alpha/beta/rc tags
-release = '1.2'
+release = '2.0'
 
 # -- General configuration ---------------------------------------------------
 
@@ -89,7 +89,7 @@ master_doc = 'index'
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = 'en'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.

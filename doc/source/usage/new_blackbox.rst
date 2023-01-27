@@ -31,11 +31,11 @@ The arguments (handed by pySELFI) are **theta** (a :math:`S`-dimensional vector 
 
 Instances of the new :class:`blackbox` class can then be used to define and manipulate :obj:`selfi` objects, as described in `this page <../gettingstarted/basic_usage.html>`__.
 
-Working examples of :class:`blackbox` classes can be found in ``pyselfi_examples/grf/model/blackbox_GRF.py`` and ``pyselfi_examples/simbelmyne/model/blackbox_SBMY.py``.
+Working examples of :class:`blackbox` classes can be found in ``src/pyselfi_examples/grf/model/blackbox_GRF.py``, ``src/pyselfi_examples/simbelmyne/model/blackbox_SBMY.py``, or ``src/pyselfi_examples/lotkavolterra/model/blackbox_LV.py``.
 
 Blackbox class template
 -----------------------
 
-A more extensive template for a new :class:`blackbox` class is provided below and downloadable here: :download:`new_blackbox.py <https://github.com/florent-leclercq/pyselfi/tree/master/pyselfi_examples/templates/new_blackbox.py>`.
+A more extensive template for a new :class:`blackbox` class is provided below and downloadable here: :download:`new_blackbox.py <https://github.com/florent-leclercq/pyselfi/tree/master/src/pyselfi_examples/templates/new_blackbox.py>`.
 
-.. literalinclude :: ../../../pyselfi_examples/templates/new_blackbox.py
+.. literalinclude :: ../../../src/pyselfi_examples/templates/new_blackbox.py

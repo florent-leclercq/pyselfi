@@ -1,7 +1,7 @@
 Reference
 ---------
 
-To acknowledge the use of pySELFI in research papers, please cite its `doi:10.5281/zenodo.3341588 <https://doi.org/10.5281/zenodo.3341588>`__ (or for the latest version, see the badge above), as well as the paper |Leclercqetal2019|_:
+To acknowledge the use of pySELFI in research papers, please cite its `doi:10.5281/zenodo.3341588 <https://doi.org/10.5281/zenodo.3341588>`__ (or for the latest version, see the badge above), as well as the papers |Leclercqetal2019|_ and `Leclercq (2022) <https://arxiv.org/abs/2209.11057>`__:
 
 .. _Leclercqetal2019: https://arxiv.org/abs/1902.10149
 
@@ -15,9 +15,18 @@ To acknowledge the use of pySELFI in research papers, please cite its `doi:10.52
 
 .. |MNRAS| replace:: MNRAS **490**, 4237 (2019)
 
+| *Simulation-based inference of Bayesian hierarchical models while checking for model misspecification*
+| F. Leclercq
+| Proceedings of the `41st International Conference on Bayesian and Maximum Entropy methods in Science and Engineering (MaxEnt2022) <https://maxent22.see.asso.fr/>`__, 18-22 July 2022, Paris, France
+| |PSF|_, `arXiv:2209.11057 <http://arxiv.org/abs/2209.11057>`__ [`astro-ph.CO <http://arxiv.org/abs/2209.11057>`__] [`ADS <https://ui.adsabs.harvard.edu/?#abs/2022arXiv220911057L>`__] [`pdf <http://arxiv.org/pdf/2209.11057>`__]
+
+.. _PSF: https://doi.org/10.3390/psf2022005004
+
+.. |PSF| replace:: Physical Sciences Forum **5**, 4 (2022)
+
 .. code-block:: console
 
-    @ARTICLE{pySELFI,
+    @ARTICLE{pySELFI1,
         author = {{Leclercq}, Florent and {Enzi}, Wolfgang and {Jasche}, Jens and {Heavens}, Alan},
         title = "{Primordial power spectrum and cosmology from black-box galaxy surveys}",
         journal = {\mnras},
@@ -32,5 +41,20 @@ To acknowledge the use of pySELFI in research papers, please cite its `doi:10.52
         eprint = {1902.10149},
         primaryClass = {astro-ph.CO},
         adsurl = {https://ui.adsabs.harvard.edu/abs/2019MNRAS.490.4237L},
-        adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+        }
+
+    @ARTICLE{pySELFI2,
+        author = {{Leclercq}, Florent},
+        title = "{Simulation-based inference of Bayesian hierarchical models while checking for model misspecification}",
+        journal = {Physical Sciences Forum},
+        keywords = {Statistics - Methodology, Astrophysics - Instrumentation and Methods for Astrophysics, Mathematics - Statistics Theory, Quantitative Biology - Populations and Evolution, Statistics - Machine Learning},
+        year = "2022",
+        month = "Sep",
+        volume = {5},
+        pages = {4},
+        doi = {10.3390/psf2022005004},
+        archivePrefix = {arXiv},
+        eprint = {2209.11057},
+        primaryClass = {stat.ME},
+        adsurl = {https://ui.adsabs.harvard.edu/abs/2022arXiv220911057L},
         }

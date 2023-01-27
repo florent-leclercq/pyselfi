@@ -1,3 +1,0 @@
-*[".npy",".npz",".h5"]
-!fiducial.npz
-!groundtruth.npz

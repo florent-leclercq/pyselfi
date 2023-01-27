@@ -1,0 +1,52 @@
+[project]
+name = "pyselfi"
+version = "2.0"
+description = "A python implementation of the Simulator Expansion for Likelihood-Free Inference (SELFI) algorithm"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {file = "LICENSE"}
+
+authors = [
+  { name="Florent Leclercq", email="florent.leclercq@iap.fr" },
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+  "numpy",
+  "scipy",
+  "h5py",
+  "matplotlib",
+  "pathlib",
+  "scikit-learn",
+]
+
+# Additional groups of dependencies. Users will be able to install these using the "extras"
+# syntax, for example:
+#
+#   $ pip install pyselfi[lotkavolterra_example]
+[project.optional-dependencies]
+lotkavolterra_example = [
+  "elfi == 0.8.3",
+  "lotkavolterra_simulator == 1.0",
+]
+docs = [
+  "docutils == 0.16",
+  "breathe == 4.34.0",
+  "jinja2 == 3.1.2",
+  "sphinx == 5.0.2",
+  "sphinx_rtd_theme == 0.4.3",
+  "readthedocs-sphinx-ext"
+]
+
+[project.urls]
+"Homepage" = "https://pyselfi.florent-leclercq.eu"
+"Documentation" = "https://pyselfi.readthedocs.io/"
+"Repository" = "https://github.com/florent-leclercq/pyselfi"
+"Bug Tracker" = "https://github.com/florent-leclercq/pyselfi/issues"
+
+[build-system]
+requires = ["setuptools>=43.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
